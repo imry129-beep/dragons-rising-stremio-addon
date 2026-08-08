@@ -1,4 +1,5 @@
 const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
+const crypto = require("crypto");
 
 // ==========================================
 // SETTINGS
@@ -7,14 +8,18 @@ const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
 const SERIES_ID = "tt27502465";
 const SEASON = 4;
 
-// כתובת קבצי הווידאו
-// מקומית כברירת מחדל.
-// ב-Render אפשר להגדיר MEDIA_BASE_URL ציבורי.
+// ב-Render תגדיר את זה לכתובת הציבורית שלך, למשל:
+// http://YOUR_PUBLIC_IP:3000/videos
 const MEDIA_BASE_URL =
     process.env.MEDIA_BASE_URL ||
     "http://127.0.0.1:3000/videos";
 
-// הכתוביות נמצאות בתוך videos ב-GitHub
+// חייב להיות אותו סוד גם ב-server.js וגם ב-Render
+const MEDIA_SECRET =
+    process.env.MEDIA_SECRET ||
+    "CHANGE-THIS-TO-A-LONG-RANDOM-SECRET";
+
+// הכתוביות נלקחות מ-GitHub
 const SUBTITLE_BASE_URL =
     "https://raw.githubusercontent.com/imry129-beep/dragons-rising-stremio-addon/main/videos";
 
@@ -26,7 +31,7 @@ const SUBTITLE_BASE_URL =
 const builder = new addonBuilder({
     id: "com.imry.dragonsrising.hebrew",
 
-    version: "1.4.0",
+    version: "1.5.0",
 
     name: "Dragons Rising Hebrew",
 
@@ -70,7 +75,7 @@ const episodes = {
     16: "es16.mp4",
     17: "es17.mp4",
 
-    // פרק 18 עם שני Audio Tracks
+    // פרק 18
     18: "output.mkv",
 
     19: "es19.mp4",
@@ -101,13 +106,9 @@ const subtitleFiles = {
 // ==========================================
 
 function getEpisode(id) {
-
     if (!id) {
         return null;
     }
-
-    // לדוגמה:
-    // tt27502465:4:18
 
     const parts = id.split(":");
 
@@ -136,6 +137,29 @@ function getEpisode(id) {
 
 
 // ==========================================
+// CREATE SIGNED VIDEO URL
+// ==========================================
+
+function createProtectedVideoUrl(filename) {
+
+    // הקישור תקף ל-4 שעות
+    const expires =
+        Date.now() + (4 * 60 * 60 * 1000);
+
+    const signature = crypto
+        .createHmac("sha256", MEDIA_SECRET)
+        .update(`${filename}:${expires}`)
+        .digest("hex");
+
+    return (
+        `${MEDIA_BASE_URL}/${encodeURIComponent(filename)}` +
+        `?expires=${expires}` +
+        `&signature=${signature}`
+    );
+}
+
+
+// ==========================================
 // STREAM HANDLER
 // ==========================================
 
@@ -154,7 +178,8 @@ builder.defineStreamHandler(async (args) => {
         };
     }
 
-    const episode = getEpisode(args.id);
+    const episode =
+        getEpisode(args.id);
 
     if (!episode) {
 
@@ -165,7 +190,8 @@ builder.defineStreamHandler(async (args) => {
         };
     }
 
-    const filename = episodes[episode];
+    const filename =
+        episodes[episode];
 
     if (!filename) {
 
@@ -179,10 +205,10 @@ builder.defineStreamHandler(async (args) => {
     }
 
     const videoUrl =
-        `${MEDIA_BASE_URL}/${encodeURIComponent(filename)}`;
+        createProtectedVideoUrl(filename);
 
     console.log(
-        `Video S04E${episode}:`
+        `Protected video S04E${episode}:`
     );
 
     console.log(videoUrl);
@@ -190,14 +216,16 @@ builder.defineStreamHandler(async (args) => {
     return {
         streams: [
             {
-                name: "🇮🇱 Dragons Rising",
+                name:
+                    "🇮🇱 Dragons Rising",
 
                 title:
                     episode === 18
                         ? "S04E18 • Hebrew + English Audio"
                         : `S04E${episode} • Dragons Rising`,
 
-                url: videoUrl
+                url:
+                    videoUrl
             }
         ]
     };
@@ -223,7 +251,8 @@ builder.defineSubtitlesHandler(async (args) => {
         };
     }
 
-    const episode = getEpisode(args.id);
+    const episode =
+        getEpisode(args.id);
 
     if (!episode) {
         return {
@@ -231,7 +260,8 @@ builder.defineSubtitlesHandler(async (args) => {
         };
     }
 
-    const filename = subtitleFiles[episode];
+    const filename =
+        subtitleFiles[episode];
 
     if (!filename) {
 
@@ -256,11 +286,14 @@ builder.defineSubtitlesHandler(async (args) => {
     return {
         subtitles: [
             {
-                id: `dragons-rising-s04e${episode}-heb`,
+                id:
+                    `dragons-rising-s04e${episode}-heb`,
 
-                lang: "heb",
+                lang:
+                    "heb",
 
-                url: subtitleUrl
+                url:
+                    subtitleUrl
             }
         ]
     };
@@ -268,7 +301,7 @@ builder.defineSubtitlesHandler(async (args) => {
 
 
 // ==========================================
-// SERVER
+// START SERVER
 // ==========================================
 
 const PORT =
@@ -285,4 +318,5 @@ console.log("");
 console.log("========================================");
 console.log("Dragons Rising Hebrew Addon");
 console.log(`Running on port ${PORT}`);
+console.log("Protected media URLs enabled");
 console.log("========================================");
