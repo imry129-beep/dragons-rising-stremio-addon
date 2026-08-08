@@ -8,18 +8,18 @@ const crypto = require("crypto");
 const SERIES_ID = "tt27502465";
 const SEASON = 4;
 
-// ב-Render תגדיר את זה לכתובת הציבורית שלך, למשל:
-// http://YOUR_PUBLIC_IP:3000/videos
+// ב-Render:
+// MEDIA_BASE_URL=http://PUBLIC-IP:3000/videos
 const MEDIA_BASE_URL =
     process.env.MEDIA_BASE_URL ||
     "http://127.0.0.1:3000/videos";
 
-// חייב להיות אותו סוד גם ב-server.js וגם ב-Render
+// חייב להיות אותו SECRET גם ב-Render וגם ב-server.js
 const MEDIA_SECRET =
     process.env.MEDIA_SECRET ||
     "CHANGE-THIS-TO-A-LONG-RANDOM-SECRET";
 
-// הכתוביות נלקחות מ-GitHub
+// הכתוביות נמצאות בתוך videos ב-GitHub
 const SUBTITLE_BASE_URL =
     "https://raw.githubusercontent.com/imry129-beep/dragons-rising-stremio-addon/main/videos";
 
@@ -31,7 +31,7 @@ const SUBTITLE_BASE_URL =
 const builder = new addonBuilder({
     id: "com.imry.dragonsrising.hebrew",
 
-    version: "1.5.0",
+    version: "1.6.0",
 
     name: "Dragons Rising Hebrew",
 
@@ -75,7 +75,7 @@ const episodes = {
     16: "es16.mp4",
     17: "es17.mp4",
 
-    // פרק 18
+    // English + Hebrew Audio
     18: "output.mkv",
 
     19: "es19.mp4",
@@ -102,13 +102,17 @@ const subtitleFiles = {
 
 
 // ==========================================
-// GET EPISODE
+// GET EPISODE NUMBER
 // ==========================================
 
 function getEpisode(id) {
+
     if (!id) {
         return null;
     }
+
+    // Example:
+    // tt27502465:4:18
 
     const parts = id.split(":");
 
@@ -173,6 +177,7 @@ builder.defineStreamHandler(async (args) => {
     console.log("========================================");
 
     if (args.type !== "series") {
+
         return {
             streams: []
         };
@@ -225,7 +230,12 @@ builder.defineStreamHandler(async (args) => {
                         : `S04E${episode} • Dragons Rising`,
 
                 url:
-                    videoUrl
+                    videoUrl,
+
+                // חשוב ל-HTTP / MKV / streams שלא Web-ready
+                behaviorHints: {
+                    notWebReady: true
+                }
             }
         ]
     };
@@ -246,6 +256,7 @@ builder.defineSubtitlesHandler(async (args) => {
     console.log("========================================");
 
     if (args.type !== "series") {
+
         return {
             subtitles: []
         };
@@ -255,6 +266,7 @@ builder.defineSubtitlesHandler(async (args) => {
         getEpisode(args.id);
 
     if (!episode) {
+
         return {
             subtitles: []
         };
@@ -318,5 +330,6 @@ console.log("");
 console.log("========================================");
 console.log("Dragons Rising Hebrew Addon");
 console.log(`Running on port ${PORT}`);
-console.log("Protected media URLs enabled");
+console.log("Signed URLs: ENABLED");
+console.log("notWebReady: ENABLED");
 console.log("========================================");
