@@ -1,28 +1,30 @@
-const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
-const crypto = require("crypto");
+const {
+    addonBuilder,
+    serveHTTP
+} = require("stremio-addon-sdk");
+
 
 // ==========================================
 // SETTINGS
 // ==========================================
 
-const SERIES_ID = "tt27502465";
-const SEASON = 4;
+const SERIES_ID =
+    "tt27502465";
 
-// ב-Render תגדיר לדוגמה:
-// MEDIA_BASE_URL=https://media.yourdomain.com/videos
-//
-// או כרגע:
-// https://xxxxx.trycloudflare.com/videos
+const SEASON =
+    4;
+
+
+// ב-Render:
+// MEDIA_BASE_URL=https://media.thefrozen.online/videos
+
 const MEDIA_BASE_URL =
     process.env.MEDIA_BASE_URL ||
-    "http://127.0.0.1:3000/videos";
+    "https://media.thefrozen.online/videos";
 
-// חייב להיות אותו SECRET גם ב-Render וגם ב-server.js
-const MEDIA_SECRET =
-    process.env.MEDIA_SECRET ||
-    "CHANGE-THIS-TO-A-LONG-RANDOM-SECRET";
 
-// קבצי הכתוביות נמצאים בתיקיית videos ב-GitHub
+// כתוביות דרך GitHub
+
 const SUBTITLE_BASE_URL =
     "https://raw.githubusercontent.com/imry129-beep/dragons-rising-stremio-addon/main/videos";
 
@@ -31,45 +33,55 @@ const SUBTITLE_BASE_URL =
 // MANIFEST
 // ==========================================
 
-const builder = new addonBuilder({
-    id: "com.imry.dragonsrising.hebrew",
+const builder =
+    new addonBuilder({
 
-    version: "1.7.0",
+        id:
+            "com.imry.dragonsrising.hebrew",
 
-    name: "Dragons Rising Hebrew",
+        version:
+            "1.8.0",
 
-    description:
-        "Ninjago Dragons Rising Season 4 Episodes 1-20 with English and Hebrew subtitles",
+        name:
+            "Dragons Rising Hebrew",
 
-    stremioAddonsConfig: {
-        issuer: "https://stremio-addons.net",
+        description:
+            "Ninjago Dragons Rising Season 4 Episodes 1-20",
 
-        signature:
-            "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..KKuyge6O2pYREL_nCNONeg.GPYOwVdXYiFKFK6wEmmQZ4MP5tGFsdGy34aDUqdJSCwadOyJ2Ah-v2Mt1ey26P9_Z1KM7iRhVgVBeV7Ww4tKdidOajrL_FXTNd97eHAINAtWKD3RVRhXDpz1HOvGo_4z.mTUVI6a4yfuH6HQJt04lqg"
-    },
+        stremioAddonsConfig: {
 
-    resources: [
-        "stream",
-        "subtitles"
-    ],
+            issuer:
+                "https://stremio-addons.net",
 
-    types: [
-        "series"
-    ],
+            signature:
+                "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..KKuyge6O2pYREL_nCNONeg.GPYOwVdXYiFKFK6wEmmQZ4MP5tGFsdGy34aDUqdJSCwadOyJ2Ah-v2Mt1ey26P9_Z1KM7iRhVgVBeV7Ww4tKdidOajrL_FXTNd97eHAINAtWKD3RVRhXDpz1HOvGo_4z.mTUVI6a4yfuH6HQJt04lqg"
 
-    catalogs: [],
+        },
 
-    idPrefixes: [
-        SERIES_ID
-    ]
-});
+        resources: [
+            "stream",
+            "subtitles"
+        ],
+
+        types: [
+            "series"
+        ],
+
+        catalogs: [],
+
+        idPrefixes: [
+            SERIES_ID
+        ]
+
+    });
 
 
 // ==========================================
-// EPISODES 1-20
+// EPISODES
 // ==========================================
 
 const episodes = {
+
     1: "es01.mp4",
     2: "es02.mp4",
     3: "es03.mp4",
@@ -89,20 +101,23 @@ const episodes = {
     16: "es16.mp4",
     17: "es17.mp4",
 
-    // פרק 18 עם English + Hebrew Audio
+    // English + Hebrew audio
     18: "output.mkv",
 
     19: "es19.mp4",
     20: "es20.mp4"
+
 };
 
 
 // ==========================================
-// SUBTITLE FILES
+// SUBTITLES
 // ==========================================
 
 const subtitleFiles = {
+
     // Episodes 1-10 - English
+
     1: "es01.en.srt",
     2: "es02.en.srt",
     3: "es03.en.srt",
@@ -114,7 +129,9 @@ const subtitleFiles = {
     9: "es09.en.srt",
     10: "es10.en.srt",
 
+
     // Episodes 11-20 - Hebrew
+
     11: "es11.srt",
     12: "es12.srt",
     13: "es13.srt",
@@ -125,11 +142,12 @@ const subtitleFiles = {
     18: "es18.srt",
     19: "es19.srt",
     20: "es20.srt"
+
 };
 
 
 // ==========================================
-// GET EPISODE NUMBER
+// GET EPISODE
 // ==========================================
 
 function getEpisode(id) {
@@ -138,55 +156,47 @@ function getEpisode(id) {
         return null;
     }
 
-    // Stremio example:
-    // tt27502465:4:7
 
-    const parts = id.split(":");
+    // Example:
+    //
+    // tt27502465:4:11
+
+    const parts =
+        id.split(":");
+
 
     if (parts.length < 3) {
         return null;
     }
 
-    const imdbId = parts[0];
-    const season = Number(parts[1]);
-    const episode = Number(parts[2]);
+
+    const imdbId =
+        parts[0];
+
+    const season =
+        Number(parts[1]);
+
+    const episode =
+        Number(parts[2]);
+
 
     if (imdbId !== SERIES_ID) {
         return null;
     }
 
+
     if (season !== SEASON) {
         return null;
     }
+
 
     if (!Number.isInteger(episode)) {
         return null;
     }
 
+
     return episode;
-}
 
-
-// ==========================================
-// CREATE SIGNED VIDEO URL
-// ==========================================
-
-function createProtectedVideoUrl(filename) {
-
-    // הקישור תקף ל-4 שעות
-    const expires =
-        Date.now() + (4 * 60 * 60 * 1000);
-
-    const signature = crypto
-        .createHmac("sha256", MEDIA_SECRET)
-        .update(`${filename}:${expires}`)
-        .digest("hex");
-
-    return (
-        `${MEDIA_BASE_URL}/${encodeURIComponent(filename)}` +
-        `?expires=${expires}` +
-        `&signature=${signature}`
-    );
 }
 
 
@@ -194,173 +204,243 @@ function createProtectedVideoUrl(filename) {
 // STREAM HANDLER
 // ==========================================
 
-builder.defineStreamHandler(async (args) => {
+builder.defineStreamHandler(
+    async (args) => {
 
-    console.log("");
-    console.log("========================================");
-    console.log("STREAM REQUEST");
-    console.log("Type:", args.type);
-    console.log("ID:", args.id);
-    console.log("========================================");
-
-    if (args.type !== "series") {
-        return {
-            streams: []
-        };
-    }
-
-    const episode =
-        getEpisode(args.id);
-
-    if (!episode) {
-
-        console.log("Invalid episode");
-
-        return {
-            streams: []
-        };
-    }
-
-    const filename =
-        episodes[episode];
-
-    if (!filename) {
-
+        console.log("");
         console.log(
-            `Episode ${episode} is not available`
+            "========================================"
         );
 
-        return {
-            streams: []
-        };
-    }
+        console.log(
+            "STREAM REQUEST"
+        );
 
-    const videoUrl =
-        createProtectedVideoUrl(filename);
+        console.log(
+            "Type:",
+            args.type
+        );
 
-    console.log(
-        `Protected video S04E${episode}:`
-    );
+        console.log(
+            "ID:",
+            args.id
+        );
 
-    console.log(videoUrl);
+        console.log(
+            "========================================"
+        );
 
-    let title;
 
-    if (episode === 18) {
-        title =
-            "S04E18 • Hebrew + English Audio";
-    } else {
-        title =
+        if (args.type !== "series") {
+
+            return {
+                streams: []
+            };
+
+        }
+
+
+        const episode =
+            getEpisode(args.id);
+
+
+        if (!episode) {
+
+            return {
+                streams: []
+            };
+
+        }
+
+
+        const filename =
+            episodes[episode];
+
+
+        if (!filename) {
+
+            console.log(
+                `Episode ${episode} not available`
+            );
+
+            return {
+                streams: []
+            };
+
+        }
+
+
+        // אין יותר signature
+        // אין expires
+
+        const videoUrl =
+            `${MEDIA_BASE_URL}/${encodeURIComponent(filename)}`;
+
+
+        console.log(
+            `S04E${episode}`
+        );
+
+        console.log(
+            videoUrl
+        );
+
+
+        let title =
             `S04E${String(episode).padStart(2, "0")} • Dragons Rising`;
-    }
 
-    return {
-        streams: [
-            {
-                name:
-                    "🇮🇱 Dragons Rising",
 
-                title: title,
+        if (episode === 18) {
 
-                url:
-                    videoUrl,
+            title =
+                "S04E18 • Hebrew + English Audio";
 
-                behaviorHints: {
-                    notWebReady: true
+        }
+
+
+        return {
+
+            streams: [
+
+                {
+
+                    name:
+                        "🇮🇱 Dragons Rising",
+
+                    title:
+                        title,
+
+                    url:
+                        videoUrl
+
                 }
-            }
-        ]
-    };
-});
+
+            ]
+
+        };
+
+    }
+);
 
 
 // ==========================================
 // SUBTITLES HANDLER
 // ==========================================
 
-builder.defineSubtitlesHandler(async (args) => {
+builder.defineSubtitlesHandler(
+    async (args) => {
 
-    console.log("");
-    console.log("========================================");
-    console.log("SUBTITLE REQUEST");
-    console.log("Type:", args.type);
-    console.log("ID:", args.id);
-    console.log("========================================");
-
-    if (args.type !== "series") {
-        return {
-            subtitles: []
-        };
-    }
-
-    const episode =
-        getEpisode(args.id);
-
-    if (!episode) {
-        return {
-            subtitles: []
-        };
-    }
-
-    const filename =
-        subtitleFiles[episode];
-
-    if (!filename) {
-
+        console.log("");
         console.log(
-            `No subtitles for episode ${episode}`
+            "========================================"
         );
 
+        console.log(
+            "SUBTITLE REQUEST"
+        );
+
+        console.log(
+            "ID:",
+            args.id
+        );
+
+        console.log(
+            "========================================"
+        );
+
+
+        if (args.type !== "series") {
+
+            return {
+                subtitles: []
+            };
+
+        }
+
+
+        const episode =
+            getEpisode(args.id);
+
+
+        if (!episode) {
+
+            return {
+                subtitles: []
+            };
+
+        }
+
+
+        const filename =
+            subtitleFiles[episode];
+
+
+        if (!filename) {
+
+            return {
+                subtitles: []
+            };
+
+        }
+
+
+        const subtitleUrl =
+            `${SUBTITLE_BASE_URL}/${encodeURIComponent(filename)}`;
+
+
+        const isEnglish =
+            episode >= 1 &&
+            episode <= 10;
+
+
+        const language =
+            isEnglish
+                ? "eng"
+                : "heb";
+
+
+        console.log(
+            `Subtitle S04E${episode}`
+        );
+
+        console.log(
+            subtitleUrl
+        );
+
+
         return {
-            subtitles: []
+
+            subtitles: [
+
+                {
+
+                    id:
+                        `dragons-rising-s04e${String(episode).padStart(2, "0")}-${language}`,
+
+                    lang:
+                        language,
+
+                    url:
+                        subtitleUrl
+
+                }
+
+            ]
+
         };
+
     }
-
-    const subtitleUrl =
-        `${SUBTITLE_BASE_URL}/${encodeURIComponent(filename)}`;
-
-    // 1-10 = English
-    // 11-20 = Hebrew
-    const isEnglish =
-        episode >= 1 && episode <= 10;
-
-    const language =
-        isEnglish ? "eng" : "heb";
-
-    const languageName =
-        isEnglish ? "English" : "Hebrew";
-
-    console.log(
-        `${languageName} subtitles S04E${episode}:`
-    );
-
-    console.log(
-        subtitleUrl
-    );
-
-    return {
-        subtitles: [
-            {
-                id:
-                    `dragons-rising-s04e${String(episode).padStart(2, "0")}-${language}`,
-
-                lang:
-                    language,
-
-                url:
-                    subtitleUrl
-            }
-        ]
-    };
-});
+);
 
 
 // ==========================================
-// START SERVER
+// START ADDON
 // ==========================================
 
 const PORT =
-    process.env.PORT || 7000;
+    process.env.PORT ||
+    7000;
+
 
 serveHTTP(
     builder.getInterface(),
@@ -369,12 +449,32 @@ serveHTTP(
     }
 );
 
+
 console.log("");
-console.log("========================================");
-console.log("Dragons Rising Hebrew Addon");
-console.log(`Running on port ${PORT}`);
-console.log("Season 4 Episodes: 1-20");
-console.log("Episodes 1-10 subtitles: English");
-console.log("Episodes 11-20 subtitles: Hebrew");
-console.log("Signed URLs: ENABLED");
-console.log("========================================");
+console.log(
+    "========================================"
+);
+
+console.log(
+    "Dragons Rising Addon"
+);
+
+console.log(
+    `Port: ${PORT}`
+);
+
+console.log(
+    "Episodes: 1-20"
+);
+
+console.log(
+    "Signed URLs: OFF"
+);
+
+console.log(
+    `Media: ${MEDIA_BASE_URL}`
+);
+
+console.log(
+    "========================================"
+);
