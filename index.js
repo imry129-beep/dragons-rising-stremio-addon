@@ -7,31 +7,31 @@ const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
 const SERIES_ID = "tt27502465";
 const SEASON = 4;
 
+// כתובת קבצי הווידאו
+// מקומית כברירת מחדל.
+// ב-Render אפשר להגדיר MEDIA_BASE_URL ציבורי.
 const MEDIA_BASE_URL =
     process.env.MEDIA_BASE_URL ||
     "http://127.0.0.1:3000/videos";
 
+// הכתוביות נמצאות בתוך videos ב-GitHub
 const SUBTITLE_BASE_URL =
-    "https://raw.githubusercontent.com/imry129-beep/dragons-rising-stremio-addon/main/subtitles";
+    "https://raw.githubusercontent.com/imry129-beep/dragons-rising-stremio-addon/main/videos";
 
 
 // ==========================================
-// ADDON MANIFEST
+// MANIFEST
 // ==========================================
 
 const builder = new addonBuilder({
     id: "com.imry.dragonsrising.hebrew",
 
-    version: "1.3.2",
+    version: "1.4.0",
 
     name: "Dragons Rising Hebrew",
 
     description:
         "Ninjago Dragons Rising Season 4 Episodes 11-20 with Hebrew subtitles",
-
-    // ======================================
-    // STREMIO ADDONS VERIFICATION
-    // ======================================
 
     stremioAddonsConfig: {
         issuer: "https://stremio-addons.net",
@@ -62,61 +62,42 @@ const builder = new addonBuilder({
 // ==========================================
 
 const episodes = {
-
     11: "es11.mp4",
-
     12: "es12.mp4",
-
     13: "es13.mp4",
-
     14: "es14.mp4",
-
     15: "es15.mp4",
-
     16: "es16.mp4",
-
     17: "es17.mp4",
 
-    // Episode 18
-    // English + Hebrew Audio
+    // פרק 18 עם שני Audio Tracks
     18: "output.mkv",
 
     19: "es19.mp4",
-
     20: "es20.mp4"
 };
 
 
 // ==========================================
-// SUBTITLE FILES
+// SUBTITLES
 // ==========================================
 
 const subtitleFiles = {
-
     11: "es11.srt",
-
     12: "es12.srt",
-
     13: "es13.srt",
-
     14: "es14.srt",
-
     15: "es15.srt",
-
     16: "es16.srt",
-
     17: "es17.srt",
-
     18: "es18.srt",
-
     19: "es19.srt",
-
     20: "es20.srt"
 };
 
 
 // ==========================================
-// GET EPISODE NUMBER
+// GET EPISODE
 // ==========================================
 
 function getEpisode(id) {
@@ -125,8 +106,7 @@ function getEpisode(id) {
         return null;
     }
 
-    // Example:
-    //
+    // לדוגמה:
     // tt27502465:4:18
 
     const parts = id.split(":");
@@ -136,28 +116,20 @@ function getEpisode(id) {
     }
 
     const imdbId = parts[0];
-
-    const season =
-        Number(parts[1]);
-
-    const episode =
-        Number(parts[2]);
-
+    const season = Number(parts[1]);
+    const episode = Number(parts[2]);
 
     if (imdbId !== SERIES_ID) {
         return null;
     }
 
-
     if (season !== SEASON) {
         return null;
     }
 
-
     if (!Number.isInteger(episode)) {
         return null;
     }
-
 
     return episode;
 }
@@ -170,59 +142,30 @@ function getEpisode(id) {
 builder.defineStreamHandler(async (args) => {
 
     console.log("");
-
-    console.log(
-        "========================================"
-    );
-
-    console.log(
-        "STREAM REQUEST"
-    );
-
-    console.log(
-        "Type:",
-        args.type
-    );
-
-    console.log(
-        "ID:",
-        args.id
-    );
-
-    console.log(
-        "========================================"
-    );
-
+    console.log("========================================");
+    console.log("STREAM REQUEST");
+    console.log("Type:", args.type);
+    console.log("ID:", args.id);
+    console.log("========================================");
 
     if (args.type !== "series") {
-
         return {
             streams: []
         };
-
     }
 
-
-    const episode =
-        getEpisode(args.id);
-
+    const episode = getEpisode(args.id);
 
     if (!episode) {
 
-        console.log(
-            "Invalid episode"
-        );
+        console.log("Invalid episode");
 
         return {
             streams: []
         };
-
     }
 
-
-    const filename =
-        episodes[episode];
-
+    const filename = episodes[episode];
 
     if (!filename) {
 
@@ -233,48 +176,31 @@ builder.defineStreamHandler(async (args) => {
         return {
             streams: []
         };
-
     }
-
 
     const videoUrl =
         `${MEDIA_BASE_URL}/${encodeURIComponent(filename)}`;
-
 
     console.log(
         `Video S04E${episode}:`
     );
 
-    console.log(
-        videoUrl
-    );
-
+    console.log(videoUrl);
 
     return {
-
         streams: [
-
             {
-
-                name:
-                    "🇮🇱 Dragons Rising",
+                name: "🇮🇱 Dragons Rising",
 
                 title:
                     episode === 18
-
                         ? "S04E18 • Hebrew + English Audio"
-
                         : `S04E${episode} • Dragons Rising`,
 
-                url:
-                    videoUrl
-
+                url: videoUrl
             }
-
         ]
-
     };
-
 });
 
 
@@ -285,55 +211,27 @@ builder.defineStreamHandler(async (args) => {
 builder.defineSubtitlesHandler(async (args) => {
 
     console.log("");
-
-    console.log(
-        "========================================"
-    );
-
-    console.log(
-        "SUBTITLE REQUEST"
-    );
-
-    console.log(
-        "Type:",
-        args.type
-    );
-
-    console.log(
-        "ID:",
-        args.id
-    );
-
-    console.log(
-        "========================================"
-    );
-
+    console.log("========================================");
+    console.log("SUBTITLE REQUEST");
+    console.log("Type:", args.type);
+    console.log("ID:", args.id);
+    console.log("========================================");
 
     if (args.type !== "series") {
-
         return {
             subtitles: []
         };
-
     }
 
-
-    const episode =
-        getEpisode(args.id);
-
+    const episode = getEpisode(args.id);
 
     if (!episode) {
-
         return {
             subtitles: []
         };
-
     }
 
-
-    const filename =
-        subtitleFiles[episode];
-
+    const filename = subtitleFiles[episode];
 
     if (!filename) {
 
@@ -344,44 +242,28 @@ builder.defineSubtitlesHandler(async (args) => {
         return {
             subtitles: []
         };
-
     }
-
 
     const subtitleUrl =
         `${SUBTITLE_BASE_URL}/${encodeURIComponent(filename)}`;
-
 
     console.log(
         `Hebrew subtitles S04E${episode}:`
     );
 
-    console.log(
-        subtitleUrl
-    );
-
+    console.log(subtitleUrl);
 
     return {
-
         subtitles: [
-
             {
+                id: `dragons-rising-s04e${episode}-heb`,
 
-                id:
-                    `dragons-rising-s04e${episode}-heb`,
+                lang: "heb",
 
-                lang:
-                    "heb",
-
-                url:
-                    subtitleUrl
-
+                url: subtitleUrl
             }
-
         ]
-
     };
-
 });
 
 
@@ -392,7 +274,6 @@ builder.defineSubtitlesHandler(async (args) => {
 const PORT =
     process.env.PORT || 7000;
 
-
 serveHTTP(
     builder.getInterface(),
     {
@@ -400,21 +281,8 @@ serveHTTP(
     }
 );
 
-
 console.log("");
-
-console.log(
-    "========================================"
-);
-
-console.log(
-    "Dragons Rising Hebrew Addon"
-);
-
-console.log(
-    `Running on port ${PORT}`
-);
-
-console.log(
-    "========================================"
-);
+console.log("========================================");
+console.log("Dragons Rising Hebrew Addon");
+console.log(`Running on port ${PORT}`);
+console.log("========================================");
