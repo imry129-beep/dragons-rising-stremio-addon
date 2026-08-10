@@ -26,12 +26,12 @@ const builder = new addonBuilder({
 
     id: "com.imry.dragonsrising.hebrew",
 
-    version: "2.0.0",
+    version: "2.1.0",
 
     name: "Dragons Rising Hebrew",
 
     description:
-        "Ninjago Dragons Rising Seasons 3 and 4",
+        "Ninjago Dragons Rising Seasons 3 and 4 with Hebrew and English audio",
 
     stremioAddonsConfig: {
 
@@ -57,6 +57,7 @@ const builder = new addonBuilder({
     idPrefixes: [
         SERIES_ID
     ]
+
 });
 
 
@@ -68,6 +69,7 @@ const episodes = {
 
     // ======================================
     // SEASON 3
+    // Hebrew + English Audio
     // ======================================
 
     3: {
@@ -122,7 +124,7 @@ const episodes = {
         16: "es16.mp4",
         17: "es17.mp4",
 
-        // Hebrew + English audio
+        // Hebrew + English Audio
         18: "output.mkv",
 
         19: "es19.mp4",
@@ -176,7 +178,7 @@ const subtitleFiles = {
 
     4: {
 
-        // Episodes 1-10 - English
+        // Episodes 1-10 English
 
         1: "es01.en.srt",
         2: "es02.en.srt",
@@ -190,7 +192,7 @@ const subtitleFiles = {
         10: "es10.en.srt",
 
 
-        // Episodes 11-20 - Hebrew
+        // Episodes 11-20 Hebrew
 
         11: "es11.srt",
         12: "es12.srt",
@@ -209,7 +211,7 @@ const subtitleFiles = {
 
 
 // ==========================================
-// PARSE EPISODE ID
+// GET EPISODE INFO
 // ==========================================
 
 function getEpisodeInfo(id) {
@@ -219,11 +221,11 @@ function getEpisodeInfo(id) {
     }
 
     // Examples:
-    //
     // tt27502465:3:1
-    // tt27502465:4:11
+    // tt27502465:4:18
 
-    const parts = id.split(":");
+    const parts =
+        id.split(":");
 
     if (parts.length < 3) {
         return null;
@@ -251,11 +253,17 @@ function getEpisodeInfo(id) {
         return null;
     }
 
-    if (season !== 3 && season !== 4) {
+    if (
+        season !== 3 &&
+        season !== 4
+    ) {
         return null;
     }
 
-    if (episode < 1 || episode > 20) {
+    if (
+        episode < 1 ||
+        episode > 20
+    ) {
         return null;
     }
 
@@ -346,10 +354,6 @@ builder.defineStreamHandler(
 
         if (!filename) {
 
-            console.log(
-                `S${season}E${episode} not available`
-            );
-
             return {
                 streams: []
             };
@@ -375,20 +379,27 @@ builder.defineStreamHandler(
             );
 
 
-        console.log(
-            `S${seasonText}E${episodeText}`
-        );
-
-        console.log(
-            videoUrl
-        );
+        let title;
 
 
-        let title =
-            `S${seasonText}E${episodeText} • Dragons Rising`;
+        // ==================================
+        // SEASON 3
+        // Hebrew + English Audio
+        // ==================================
 
+        if (season === 3) {
 
-        if (
+            title =
+                `S${seasonText}E${episodeText} • Hebrew + English Audio`;
+
+        }
+
+        // ==================================
+        // SEASON 4 EPISODE 18
+        // Hebrew + English Audio
+        // ==================================
+
+        else if (
             season === 4 &&
             episode === 18
         ) {
@@ -398,6 +409,26 @@ builder.defineStreamHandler(
 
         }
 
+        // ==================================
+        // NORMAL EPISODE
+        // ==================================
+
+        else {
+
+            title =
+                `S${seasonText}E${episodeText} • Dragons Rising`;
+
+        }
+
+
+        console.log(
+            `S${seasonText}E${episodeText}`
+        );
+
+        console.log(
+            videoUrl
+        );
+
 
         return {
 
@@ -406,7 +437,7 @@ builder.defineStreamHandler(
                 {
 
                     name:
-                        "🐉 Dragons Rising",
+                        "🇮🇱 Dragons Rising",
 
                     title:
                         title,
@@ -610,6 +641,10 @@ serveHTTP(
 );
 
 
+// ==========================================
+// LOGS
+// ==========================================
+
 console.log("");
 console.log(
     "========================================"
@@ -628,7 +663,11 @@ console.log(
 );
 
 console.log(
-    "Season 3 subtitles: English"
+    "Season 3 Audio: Hebrew + English"
+);
+
+console.log(
+    "Season 3 Subtitles: English"
 );
 
 console.log(
@@ -636,11 +675,15 @@ console.log(
 );
 
 console.log(
-    "Season 4 Episodes 1-10 subtitles: English"
+    "Season 4 E01-E10 Subtitles: English"
 );
 
 console.log(
-    "Season 4 Episodes 11-20 subtitles: Hebrew"
+    "Season 4 E11-E20 Subtitles: Hebrew"
+);
+
+console.log(
+    "Season 4 E18 Audio: Hebrew + English"
 );
 
 console.log(
