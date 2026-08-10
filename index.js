@@ -26,12 +26,12 @@ const builder = new addonBuilder({
 
     id: "com.imry.dragonsrising.hebrew",
 
-    version: "2.1.0",
+    version: "2.2.0",
 
     name: "Dragons Rising Hebrew",
 
     description:
-        "Ninjago Dragons Rising Seasons 3 and 4 with Hebrew and English audio",
+        "Ninjago Dragons Rising Seasons 2, 3 and 4 with Hebrew and English audio",
 
     stremioAddonsConfig: {
 
@@ -68,8 +68,40 @@ const builder = new addonBuilder({
 const episodes = {
 
     // ======================================
+    // SEASON 2
+    // English + Hebrew Audio
+    // ======================================
+
+    2: {
+
+        1: "es01s2.mp4",
+        2: "es02s2.mp4",
+        3: "es03s2.mp4",
+        4: "es04s2.mp4",
+        5: "es05s2.mp4",
+        6: "es06s2.mp4",
+        7: "es07s2.mp4",
+        8: "es08s2.mp4",
+        9: "es09s2.mp4",
+        10: "es10s2.mp4",
+
+        11: "es11s2.mp4",
+        12: "es12s2.mp4",
+        13: "es13s2.mp4",
+        14: "es14s2.mp4",
+        15: "es15s2.mp4",
+        16: "es16s2.mp4",
+        17: "es17s2.mp4",
+        18: "es18s2.mp4",
+        19: "es19s2.mp4",
+        20: "es20s2.mp4"
+
+    },
+
+
+    // ======================================
     // SEASON 3
-    // Hebrew + English Audio
+    // English + Hebrew Audio
     // ======================================
 
     3: {
@@ -124,7 +156,7 @@ const episodes = {
         16: "es16.mp4",
         17: "es17.mp4",
 
-        // Hebrew + English Audio
+        // English + Hebrew Audio
         18: "output.mkv",
 
         19: "es19.mp4",
@@ -178,7 +210,7 @@ const subtitleFiles = {
 
     4: {
 
-        // Episodes 1-10 English
+        // Episodes 1-10 - English
 
         1: "es01.en.srt",
         2: "es02.en.srt",
@@ -192,7 +224,7 @@ const subtitleFiles = {
         10: "es10.en.srt",
 
 
-        // Episodes 11-20 Hebrew
+        // Episodes 11-20 - Hebrew
 
         11: "es11.srt",
         12: "es12.srt",
@@ -221,7 +253,9 @@ function getEpisodeInfo(id) {
     }
 
     // Examples:
-    // tt27502465:3:1
+    //
+    // tt27502465:2:1
+    // tt27502465:3:10
     // tt27502465:4:18
 
     const parts =
@@ -230,6 +264,7 @@ function getEpisodeInfo(id) {
     if (parts.length < 3) {
         return null;
     }
+
 
     const imdbId =
         parts[0];
@@ -245,20 +280,25 @@ function getEpisodeInfo(id) {
         return null;
     }
 
+
     if (!Number.isInteger(season)) {
         return null;
     }
+
 
     if (!Number.isInteger(episode)) {
         return null;
     }
 
+
     if (
+        season !== 2 &&
         season !== 3 &&
         season !== 4
     ) {
         return null;
     }
+
 
     if (
         episode < 1 ||
@@ -354,6 +394,10 @@ builder.defineStreamHandler(
 
         if (!filename) {
 
+            console.log(
+                `S${season}E${episode} not available`
+            );
+
             return {
                 streams: []
             };
@@ -379,25 +423,34 @@ builder.defineStreamHandler(
             );
 
 
+        // ==================================
+        // STREAM TITLE
+        // ==================================
+
         let title;
 
 
-        // ==================================
-        // SEASON 3
-        // Hebrew + English Audio
-        // ==================================
+        // Season 2 has English + Hebrew
 
-        if (season === 3) {
+        if (season === 2) {
 
             title =
                 `S${seasonText}E${episodeText} • Hebrew + English Audio`;
 
         }
 
-        // ==================================
-        // SEASON 4 EPISODE 18
-        // Hebrew + English Audio
-        // ==================================
+
+        // Season 3 has English + Hebrew
+
+        else if (season === 3) {
+
+            title =
+                `S${seasonText}E${episodeText} • Hebrew + English Audio`;
+
+        }
+
+
+        // Season 4 Episode 18 has both
 
         else if (
             season === 4 &&
@@ -409,9 +462,8 @@ builder.defineStreamHandler(
 
         }
 
-        // ==================================
-        // NORMAL EPISODE
-        // ==================================
+
+        // Normal Season 4 Episode
 
         else {
 
@@ -514,11 +566,17 @@ builder.defineSubtitlesHandler(
         } = info;
 
 
+        // No Season 2 subtitles yet
+
         const seasonSubtitles =
             subtitleFiles[season];
 
 
         if (!seasonSubtitles) {
+
+            console.log(
+                `No subtitles for Season ${season}`
+            );
 
             return {
                 subtitles: []
@@ -545,7 +603,7 @@ builder.defineSubtitlesHandler(
 
 
         // ==================================
-        // LANGUAGE
+        // SUBTITLE LANGUAGE
         // ==================================
         //
         // Season 3:
@@ -656,6 +714,14 @@ console.log(
 
 console.log(
     `Port: ${PORT}`
+);
+
+console.log(
+    "Season 2: Episodes 1-20"
+);
+
+console.log(
+    "Season 2 Audio: Hebrew + English"
 );
 
 console.log(
