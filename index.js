@@ -3,11 +3,6 @@ const {
     serveHTTP
 } = require("stremio-addon-sdk");
 
-
-// ==========================================
-// SETTINGS
-// ==========================================
-
 const SERIES_ID = "tt27502465";
 
 const MEDIA_BASE_URL =
@@ -17,16 +12,11 @@ const MEDIA_BASE_URL =
 const SUBTITLE_BASE_URL =
     "https://raw.githubusercontent.com/imry129-beep/dragons-rising-stremio-addon/main/videos";
 
-
-// ==========================================
-// MANIFEST
-// ==========================================
-
 const builder = new addonBuilder({
 
     id: "com.imry.dragonsrising.hebrew",
 
-    version: "2.2.0",
+    version: "2.2.1",
 
     name: "Dragons Rising Hebrew",
 
@@ -67,13 +57,7 @@ const builder = new addonBuilder({
 
 const episodes = {
 
-    // ======================================
-    // SEASON 2
-    // English + Hebrew Audio
-    // ======================================
-
     2: {
-
         1: "es01s2.mp4",
         2: "es02s2.mp4",
         3: "es03s2.mp4",
@@ -84,7 +68,6 @@ const episodes = {
         8: "es08s2.mp4",
         9: "es09s2.mp4",
         10: "es10s2.mp4",
-
         11: "es11s2.mp4",
         12: "es12s2.mp4",
         13: "es13s2.mp4",
@@ -95,17 +78,9 @@ const episodes = {
         18: "es18s2.mp4",
         19: "es19s2.mp4",
         20: "es20s2.mp4"
-
     },
 
-
-    // ======================================
-    // SEASON 3
-    // English + Hebrew Audio
-    // ======================================
-
     3: {
-
         1: "es01s3.mp4",
         2: "es02s3.mp4",
         3: "es03s3.mp4",
@@ -116,7 +91,6 @@ const episodes = {
         8: "es08s3.mp4",
         9: "es09s3.mp4",
         10: "es10s3.mp4",
-
         11: "es11s3.mp4",
         12: "es12s3.mp4",
         13: "es13s3.mp4",
@@ -127,16 +101,9 @@ const episodes = {
         18: "es18s3.mp4",
         19: "es19s3.mp4",
         20: "es20s3.mp4"
-
     },
 
-
-    // ======================================
-    // SEASON 4
-    // ======================================
-
     4: {
-
         1: "es01.mp4",
         2: "es02.mp4",
         3: "es03.mp4",
@@ -147,7 +114,6 @@ const episodes = {
         8: "es08.mp4",
         9: "es09.mp4",
         10: "es10.mp4",
-
         11: "es11.mp4",
         12: "es12.mp4",
         13: "es13.mp4",
@@ -155,13 +121,9 @@ const episodes = {
         15: "es15.mp4",
         16: "es16.mp4",
         17: "es17.mp4",
-
-        // English + Hebrew Audio
         18: "output.mkv",
-
         19: "es19.mp4",
         20: "es20.mp4"
-
     }
 
 };
@@ -173,12 +135,7 @@ const episodes = {
 
 const subtitleFiles = {
 
-    // ======================================
-    // SEASON 3 - ENGLISH
-    // ======================================
-
     3: {
-
         1: "es01s3.en.srt",
         2: "es02s3.en.srt",
         3: "es03s3.en.srt",
@@ -189,7 +146,6 @@ const subtitleFiles = {
         8: "es08s3.en.srt",
         9: "es09s3.en.srt",
         10: "es10s3.en.srt",
-
         11: "es11s3.en.srt",
         12: "es12s3.en.srt",
         13: "es13s3.en.srt",
@@ -200,18 +156,9 @@ const subtitleFiles = {
         18: "es18s3.en.srt",
         19: "es19s3.en.srt",
         20: "es20s3.en.srt"
-
     },
 
-
-    // ======================================
-    // SEASON 4
-    // ======================================
-
     4: {
-
-        // Episodes 1-10 - English
-
         1: "es01.en.srt",
         2: "es02.en.srt",
         3: "es03.en.srt",
@@ -222,10 +169,6 @@ const subtitleFiles = {
         8: "es08.en.srt",
         9: "es09.en.srt",
         10: "es10.en.srt",
-
-
-        // Episodes 11-20 - Hebrew
-
         11: "es11.srt",
         12: "es12.srt",
         13: "es13.srt",
@@ -236,14 +179,13 @@ const subtitleFiles = {
         18: "es18.srt",
         19: "es19.srt",
         20: "es20.srt"
-
     }
 
 };
 
 
 // ==========================================
-// GET EPISODE INFO
+// PARSE EPISODE ID
 // ==========================================
 
 function getEpisodeInfo(id) {
@@ -252,19 +194,12 @@ function getEpisodeInfo(id) {
         return null;
     }
 
-    // Examples:
-    //
-    // tt27502465:2:1
-    // tt27502465:3:10
-    // tt27502465:4:18
-
     const parts =
         id.split(":");
 
     if (parts.length < 3) {
         return null;
     }
-
 
     const imdbId =
         parts[0];
@@ -275,21 +210,17 @@ function getEpisodeInfo(id) {
     const episode =
         Number(parts[2]);
 
-
     if (imdbId !== SERIES_ID) {
         return null;
     }
-
 
     if (!Number.isInteger(season)) {
         return null;
     }
 
-
     if (!Number.isInteger(episode)) {
         return null;
     }
-
 
     if (
         season !== 2 &&
@@ -299,14 +230,12 @@ function getEpisodeInfo(id) {
         return null;
     }
 
-
     if (
         episode < 1 ||
         episode > 20
     ) {
         return null;
     }
-
 
     return {
         season,
@@ -327,25 +256,20 @@ builder.defineStreamHandler(
         console.log(
             "========================================"
         );
-
         console.log(
             "STREAM REQUEST"
         );
-
         console.log(
             "Type:",
             args.type
         );
-
         console.log(
             "ID:",
             args.id
         );
-
         console.log(
             "========================================"
         );
-
 
         if (args.type !== "series") {
 
@@ -355,10 +279,8 @@ builder.defineStreamHandler(
 
         }
 
-
         const info =
             getEpisodeInfo(args.id);
-
 
         if (!info) {
 
@@ -368,16 +290,13 @@ builder.defineStreamHandler(
 
         }
 
-
         const {
             season,
             episode
         } = info;
 
-
         const seasonEpisodes =
             episodes[season];
-
 
         if (!seasonEpisodes) {
 
@@ -387,10 +306,8 @@ builder.defineStreamHandler(
 
         }
 
-
         const filename =
             seasonEpisodes[episode];
-
 
         if (!filename) {
 
@@ -404,10 +321,8 @@ builder.defineStreamHandler(
 
         }
 
-
         const videoUrl =
             `${MEDIA_BASE_URL}/${encodeURIComponent(filename)}`;
-
 
         const seasonText =
             String(season).padStart(
@@ -415,22 +330,13 @@ builder.defineStreamHandler(
                 "0"
             );
 
-
         const episodeText =
             String(episode).padStart(
                 2,
                 "0"
             );
 
-
-        // ==================================
-        // STREAM TITLE
-        // ==================================
-
         let title;
-
-
-        // Season 2 has English + Hebrew
 
         if (season === 2) {
 
@@ -439,18 +345,12 @@ builder.defineStreamHandler(
 
         }
 
-
-        // Season 3 has English + Hebrew
-
         else if (season === 3) {
 
             title =
                 `S${seasonText}E${episodeText} • Hebrew + English Audio`;
 
         }
-
-
-        // Season 4 Episode 18 has both
 
         else if (
             season === 4 &&
@@ -462,16 +362,12 @@ builder.defineStreamHandler(
 
         }
 
-
-        // Normal Season 4 Episode
-
         else {
 
             title =
                 `S${seasonText}E${episodeText} • Dragons Rising`;
 
         }
-
 
         console.log(
             `S${seasonText}E${episodeText}`
@@ -481,6 +377,14 @@ builder.defineStreamHandler(
             videoUrl
         );
 
+        console.log(
+            "notWebReady: true"
+        );
+
+        console.log(
+            "Filename:",
+            filename
+        );
 
         return {
 
@@ -495,7 +399,17 @@ builder.defineStreamHandler(
                         title,
 
                     url:
-                        videoUrl
+                        videoUrl,
+
+                    behaviorHints: {
+
+                        notWebReady:
+                            true,
+
+                        filename:
+                            filename
+
+                    }
 
                 }
 
@@ -518,25 +432,20 @@ builder.defineSubtitlesHandler(
         console.log(
             "========================================"
         );
-
         console.log(
             "SUBTITLE REQUEST"
         );
-
         console.log(
             "Type:",
             args.type
         );
-
         console.log(
             "ID:",
             args.id
         );
-
         console.log(
             "========================================"
         );
-
 
         if (args.type !== "series") {
 
@@ -546,10 +455,8 @@ builder.defineSubtitlesHandler(
 
         }
 
-
         const info =
             getEpisodeInfo(args.id);
-
 
         if (!info) {
 
@@ -559,18 +466,13 @@ builder.defineSubtitlesHandler(
 
         }
 
-
         const {
             season,
             episode
         } = info;
 
-
-        // No Season 2 subtitles yet
-
         const seasonSubtitles =
             subtitleFiles[season];
-
 
         if (!seasonSubtitles) {
 
@@ -584,10 +486,8 @@ builder.defineSubtitlesHandler(
 
         }
 
-
         const filename =
             seasonSubtitles[episode];
-
 
         if (!filename) {
 
@@ -597,21 +497,8 @@ builder.defineSubtitlesHandler(
 
         }
 
-
         const subtitleUrl =
             `${SUBTITLE_BASE_URL}/${encodeURIComponent(filename)}`;
-
-
-        // ==================================
-        // SUBTITLE LANGUAGE
-        // ==================================
-        //
-        // Season 3:
-        // Episodes 1-20 = English
-        //
-        // Season 4:
-        // Episodes 1-10 = English
-        // Episodes 11-20 = Hebrew
 
         const isEnglish =
             season === 3 ||
@@ -621,18 +508,15 @@ builder.defineSubtitlesHandler(
                 episode <= 10
             );
 
-
         const language =
             isEnglish
                 ? "eng"
                 : "heb";
 
-
         const languageName =
             isEnglish
                 ? "English"
                 : "Hebrew";
-
 
         const seasonText =
             String(season).padStart(
@@ -640,13 +524,11 @@ builder.defineSubtitlesHandler(
                 "0"
             );
 
-
         const episodeText =
             String(episode).padStart(
                 2,
                 "0"
             );
-
 
         console.log(
             `${languageName} subtitles S${seasonText}E${episodeText}`
@@ -655,7 +537,6 @@ builder.defineSubtitlesHandler(
         console.log(
             subtitleUrl
         );
-
 
         return {
 
@@ -683,13 +564,12 @@ builder.defineSubtitlesHandler(
 
 
 // ==========================================
-// START ADDON
+// START SERVER
 // ==========================================
 
 const PORT =
     process.env.PORT ||
     7000;
-
 
 serveHTTP(
     builder.getInterface(),
@@ -698,11 +578,6 @@ serveHTTP(
     }
 );
 
-
-// ==========================================
-// LOGS
-// ==========================================
-
 console.log("");
 console.log(
     "========================================"
@@ -710,6 +585,10 @@ console.log(
 
 console.log(
     "Dragons Rising Addon"
+);
+
+console.log(
+    `Version: 2.2.1`
 );
 
 console.log(
@@ -750,6 +629,10 @@ console.log(
 
 console.log(
     "Season 4 E18 Audio: Hebrew + English"
+);
+
+console.log(
+    "Stream notWebReady: ENABLED"
 );
 
 console.log(
