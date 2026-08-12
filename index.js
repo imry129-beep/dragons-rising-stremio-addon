@@ -16,7 +16,7 @@ const builder = new addonBuilder({
 
     id: "com.imry.dragonsrising.hebrew",
 
-    version: "2.2.1",
+    version: "2.2.2",
 
     name: "Dragons Rising Hebrew",
 
@@ -134,6 +134,29 @@ const episodes = {
 // ==========================================
 
 const subtitleFiles = {
+
+    2: {
+        1: "es01s2.en.srt",
+        2: "es02s2.en.srt",
+        3: "es03s2.en.srt",
+        4: "es04s2.en.srt",
+        5: "es05s2.en.srt",
+        6: "es06s2.en.srt",
+        7: "es07s2.en.srt",
+        8: "es08s2.en.srt",
+        9: "es09s2.en.srt",
+        10: "es10s2.en.srt",
+        11: "es11s2.en.srt",
+        12: "es12s2.en.srt",
+        13: "es13s2.en.srt",
+        14: "es14s2.en.srt",
+        15: "es15s2.en.srt",
+        16: "es16s2.en.srt",
+        17: "es17s2.en.srt",
+        18: "es18s2.en.srt",
+        19: "es19s2.en.srt",
+        20: "es20s2.en.srt"
+    },
 
     3: {
         1: "es01s3.en.srt",
@@ -256,20 +279,25 @@ builder.defineStreamHandler(
         console.log(
             "========================================"
         );
+
         console.log(
             "STREAM REQUEST"
         );
+
         console.log(
             "Type:",
             args.type
         );
+
         console.log(
             "ID:",
             args.id
         );
+
         console.log(
             "========================================"
         );
+
 
         if (args.type !== "series") {
 
@@ -278,6 +306,7 @@ builder.defineStreamHandler(
             };
 
         }
+
 
         const info =
             getEpisodeInfo(args.id);
@@ -290,10 +319,12 @@ builder.defineStreamHandler(
 
         }
 
+
         const {
             season,
             episode
         } = info;
+
 
         const seasonEpisodes =
             episodes[season];
@@ -306,14 +337,11 @@ builder.defineStreamHandler(
 
         }
 
+
         const filename =
             seasonEpisodes[episode];
 
         if (!filename) {
-
-            console.log(
-                `S${season}E${episode} not available`
-            );
 
             return {
                 streams: []
@@ -321,8 +349,10 @@ builder.defineStreamHandler(
 
         }
 
+
         const videoUrl =
             `${MEDIA_BASE_URL}/${encodeURIComponent(filename)}`;
+
 
         const seasonText =
             String(season).padStart(
@@ -330,22 +360,21 @@ builder.defineStreamHandler(
                 "0"
             );
 
+
         const episodeText =
             String(episode).padStart(
                 2,
                 "0"
             );
 
+
         let title;
 
-        if (season === 2) {
 
-            title =
-                `S${seasonText}E${episodeText} • Hebrew + English Audio`;
-
-        }
-
-        else if (season === 3) {
+        if (
+            season === 2 ||
+            season === 3
+        ) {
 
             title =
                 `S${seasonText}E${episodeText} • Hebrew + English Audio`;
@@ -369,6 +398,7 @@ builder.defineStreamHandler(
 
         }
 
+
         console.log(
             `S${seasonText}E${episodeText}`
         );
@@ -385,6 +415,7 @@ builder.defineStreamHandler(
             "Filename:",
             filename
         );
+
 
         return {
 
@@ -432,20 +463,25 @@ builder.defineSubtitlesHandler(
         console.log(
             "========================================"
         );
+
         console.log(
             "SUBTITLE REQUEST"
         );
+
         console.log(
             "Type:",
             args.type
         );
+
         console.log(
             "ID:",
             args.id
         );
+
         console.log(
             "========================================"
         );
+
 
         if (args.type !== "series") {
 
@@ -454,6 +490,7 @@ builder.defineSubtitlesHandler(
             };
 
         }
+
 
         const info =
             getEpisodeInfo(args.id);
@@ -466,10 +503,12 @@ builder.defineSubtitlesHandler(
 
         }
 
+
         const {
             season,
             episode
         } = info;
+
 
         const seasonSubtitles =
             subtitleFiles[season];
@@ -486,6 +525,7 @@ builder.defineSubtitlesHandler(
 
         }
 
+
         const filename =
             seasonSubtitles[episode];
 
@@ -497,10 +537,13 @@ builder.defineSubtitlesHandler(
 
         }
 
+
         const subtitleUrl =
             `${SUBTITLE_BASE_URL}/${encodeURIComponent(filename)}`;
 
+
         const isEnglish =
+            season === 2 ||
             season === 3 ||
             (
                 season === 4 &&
@@ -508,15 +551,18 @@ builder.defineSubtitlesHandler(
                 episode <= 10
             );
 
+
         const language =
             isEnglish
                 ? "eng"
                 : "heb";
 
+
         const languageName =
             isEnglish
                 ? "English"
                 : "Hebrew";
+
 
         const seasonText =
             String(season).padStart(
@@ -524,11 +570,13 @@ builder.defineSubtitlesHandler(
                 "0"
             );
 
+
         const episodeText =
             String(episode).padStart(
                 2,
                 "0"
             );
+
 
         console.log(
             `${languageName} subtitles S${seasonText}E${episodeText}`
@@ -537,6 +585,7 @@ builder.defineSubtitlesHandler(
         console.log(
             subtitleUrl
         );
+
 
         return {
 
@@ -571,12 +620,14 @@ const PORT =
     process.env.PORT ||
     7000;
 
+
 serveHTTP(
     builder.getInterface(),
     {
         port: PORT
     }
 );
+
 
 console.log("");
 console.log(
@@ -588,7 +639,7 @@ console.log(
 );
 
 console.log(
-    `Version: 2.2.1`
+    "Version: 2.2.2"
 );
 
 console.log(
@@ -601,6 +652,10 @@ console.log(
 
 console.log(
     "Season 2 Audio: Hebrew + English"
+);
+
+console.log(
+    "Season 2 Subtitles: English"
 );
 
 console.log(
