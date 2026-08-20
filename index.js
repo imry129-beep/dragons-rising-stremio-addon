@@ -3,8 +3,7 @@ const {
     serveHTTP
 } = require("stremio-addon-sdk");
 
-const https =
-    require("https");
+const https = require("https");
 
 
 // ==========================================
@@ -61,7 +60,7 @@ const builder =
             "com.imry.dragonsrising.hebrew",
 
         version:
-            "2.7.0",
+            "2.7.1",
 
         name:
             "Dragons Rising Hebrew+English",
@@ -98,7 +97,6 @@ const builder =
         config: [
 
             {
-
                 key:
                     "audio",
 
@@ -120,12 +118,10 @@ const builder =
 
                 default:
                     "Hebrew + English"
-
             },
 
 
             {
-
                 key:
                     "season2",
 
@@ -137,12 +133,10 @@ const builder =
 
                 default:
                     "checked"
-
             },
 
 
             {
-
                 key:
                     "season3",
 
@@ -154,12 +148,10 @@ const builder =
 
                 default:
                     "checked"
-
             },
 
 
             {
-
                 key:
                     "season4",
 
@@ -171,7 +163,6 @@ const builder =
 
                 default:
                     "checked"
-
             }
 
         ],
@@ -201,7 +192,6 @@ const builder =
             "catalog",
 
             {
-
                 name:
                     "meta",
 
@@ -212,11 +202,9 @@ const builder =
                 idPrefixes: [
                     META_PREFIX
                 ]
-
             },
 
             {
-
                 name:
                     "stream",
 
@@ -231,11 +219,9 @@ const builder =
                     META_PREFIX
 
                 ]
-
             },
 
             {
-
                 name:
                     "subtitles",
 
@@ -250,7 +236,6 @@ const builder =
                     META_PREFIX
 
                 ]
-
             }
 
         ],
@@ -268,7 +253,6 @@ const builder =
         catalogs: [
 
             {
-
                 type:
                     "series",
 
@@ -277,7 +261,6 @@ const builder =
 
                 name:
                     "Dragons Rising Hebrew+English"
-
             }
 
         ]
@@ -286,7 +269,7 @@ const builder =
 
 
 // ==========================================
-// CONFIGURED?
+// CONFIG
 // ==========================================
 
 function isConfigured(
@@ -310,10 +293,6 @@ function isConfigured(
 }
 
 
-// ==========================================
-// CHECKBOX
-// ==========================================
-
 function trueish(
     value
 ) {
@@ -336,10 +315,6 @@ function trueish(
 
 }
 
-
-// ==========================================
-// SEASON ENABLED
-// ==========================================
 
 function seasonEnabled(
     config,
@@ -367,10 +342,6 @@ function seasonEnabled(
 
 }
 
-
-// ==========================================
-// AUDIO
-// ==========================================
 
 function getAudio(
     config
@@ -434,7 +405,7 @@ function getAudioMode(
 
 
 // ==========================================
-// HELPERS
+// GENERAL HELPERS
 // ==========================================
 
 function padEpisode(
@@ -463,7 +434,7 @@ function getSeasonMetaId(
 
 
 // ==========================================
-// ORIGINAL VIDEO FILE
+// VIDEO FILES
 // ==========================================
 
 function getOriginalVideoFilename(
@@ -538,12 +509,6 @@ function getOriginalVideoFilename(
 
 // ==========================================
 // VIRTUAL FILENAME
-//
-// Example:
-//
-// es01s2.mp4
-// es01s2.heb.mp4
-// es01s2.eng.mp4
 // ==========================================
 
 function getVirtualFilename(
@@ -610,39 +575,27 @@ function getSeasonName(
         );
 
 
-    // ======================================
-    // HEBREW
-    // ======================================
-
     if (
         audio === "Hebrew"
     ) {
 
         return (
-            `עליית הדרקונים - עונה ${season}`
+            `נינג'גו: עליית הדרקונים - עונה ${season}`
         );
 
     }
 
-
-    // ======================================
-    // ENGLISH
-    // ======================================
 
     if (
         audio === "English"
     ) {
 
         return (
-            `Dragons Rising - Season ${season}`
+            `Ninjago: Dragons Rising - Season ${season}`
         );
 
     }
 
-
-    // ======================================
-    // BOTH
-    // ======================================
 
     return (
         `Dragons Rising Hebrew+English - Season ${season}`
@@ -704,7 +657,7 @@ function getSeasonDescription(
     ) {
 
         return (
-            `נינג'גו: עליית הדרקונים — עונה ${season}. שמע בעברית בלבד.`
+            `נינג'גו: עליית הדרקונים — עונה ${season}. כל הפרקים עם שמע בעברית בלבד.`
         );
 
     }
@@ -719,7 +672,7 @@ function getSeasonDescription(
     ) {
 
         return (
-            `Ninjago: Dragons Rising — Season ${season}. English audio only.`
+            `Ninjago: Dragons Rising — Season ${season}. All episodes with English audio only.`
         );
 
     }
@@ -746,14 +699,10 @@ function getEpisodeTitle(
     config
 ) {
 
-    const audio =
+    if (
         getAudio(
             config
-        );
-
-
-    if (
-        audio === "Hebrew"
+        ) === "Hebrew"
     ) {
 
         return (
@@ -791,10 +740,6 @@ function getEpisodeDescription(
         );
 
 
-    // ======================================
-    // HEBREW
-    // ======================================
-
     if (
         audio === "Hebrew"
     ) {
@@ -805,10 +750,6 @@ function getEpisodeDescription(
 
     }
 
-
-    // ======================================
-    // ENGLISH
-    // ======================================
 
     if (
         audio === "English"
@@ -824,10 +765,6 @@ function getEpisodeDescription(
 
     }
 
-
-    // ======================================
-    // BOTH
-    // ======================================
 
     return (
 
@@ -1062,7 +999,7 @@ function makeStream(
 
 
     // ======================================
-    // URL
+    // SERVER URL
     //
     // Hebrew:
     // ?audio=heb
@@ -1090,15 +1027,11 @@ function makeStream(
             url,
 
 
-        // ==================================
-        // IMPORTANT
-        // ==================================
-
         behaviorHints: {
 
-            // Keep this enabled.
-            // This fixed the audio-track support
-            // inside Stremio.
+            // ==================================
+            // IMPORTANT FOR STREMIO
+            // ==================================
 
             notWebReady:
                 true,
@@ -1245,7 +1178,7 @@ function getEpisodeInfo(
 
 
 // ==========================================
-// META ID PARSER
+// META ID
 // ==========================================
 
 function getSeasonFromMetaId(
@@ -1437,7 +1370,7 @@ function getJson(
 
 
 // ==========================================
-// CINEMETA
+// GET CINEMETA
 // ==========================================
 
 async function getCinemetaMeta() {
@@ -1445,8 +1378,6 @@ async function getCinemetaMeta() {
     const now =
         Date.now();
 
-
-    // Cache for 30 minutes
 
     if (
 
@@ -1601,7 +1532,7 @@ function createFallbackVideos(
 
 
 // ==========================================
-// GET SEASON VIDEOS
+// SEASON EPISODES
 // ==========================================
 
 async function getSeasonVideos(
@@ -1634,11 +1565,6 @@ async function getSeasonVideos(
         const videos =
             sourceVideos
 
-
-                // ==================================
-                // ONLY THIS SEASON
-                // ==================================
-
                 .filter(
 
                     (
@@ -1665,11 +1591,6 @@ async function getSeasonVideos(
 
                 )
 
-
-                // ==================================
-                // SORT
-                // ==================================
-
                 .sort(
 
                     (
@@ -1692,11 +1613,6 @@ async function getSeasonVideos(
                     }
 
                 )
-
-
-                // ==================================
-                // EPISODES
-                // ==================================
 
                 .map(
 
@@ -1800,7 +1716,7 @@ async function getSeasonVideos(
 
 
 // ==========================================
-// CATALOG HANDLER
+// CATALOG
 // ==========================================
 
 builder.defineCatalogHandler(
@@ -1819,8 +1735,7 @@ builder.defineCatalogHandler(
 
             return {
 
-                metas:
-                    [],
+                metas: [],
 
                 cacheMaxAge:
                     0
@@ -1835,10 +1750,6 @@ builder.defineCatalogHandler(
             {};
 
 
-        // ==================================
-        // MUST CONFIGURE FIRST
-        // ==================================
-
         if (
             !isConfigured(
                 config
@@ -1847,8 +1758,7 @@ builder.defineCatalogHandler(
 
             return {
 
-                metas:
-                    [],
+                metas: [],
 
                 cacheMaxAge:
                     0
@@ -1941,7 +1851,7 @@ builder.defineCatalogHandler(
 
 
 // ==========================================
-// META HANDLER
+// META
 // ==========================================
 
 builder.defineMetaHandler(
@@ -1971,10 +1881,6 @@ builder.defineMetaHandler(
             args.config ||
             {};
 
-
-        // ==================================
-        // MUST CONFIGURE FIRST
-        // ==================================
 
         if (
             !isConfigured(
@@ -2037,12 +1943,10 @@ builder.defineMetaHandler(
 
         // ==================================
         // IMPORTANT:
-        //
         // NO defaultVideoId
         //
-        // So clicking Season 2 opens
-        // the season page instead of
-        // jumping directly into Episode 1.
+        // Clicking Season opens the season
+        // page instead of Episode 1.
         // ==================================
 
         return {
@@ -2100,7 +2004,7 @@ builder.defineMetaHandler(
 
 
 // ==========================================
-// STREAM HANDLER
+// STREAM
 // ==========================================
 
 builder.defineStreamHandler(
@@ -2115,8 +2019,7 @@ builder.defineStreamHandler(
 
             return {
 
-                streams:
-                    [],
+                streams: [],
 
                 cacheMaxAge:
                     0
@@ -2139,8 +2042,7 @@ builder.defineStreamHandler(
 
             return {
 
-                streams:
-                    [],
+                streams: [],
 
                 cacheMaxAge:
                     0
@@ -2169,8 +2071,7 @@ builder.defineStreamHandler(
 
             return {
 
-                streams:
-                    [],
+                streams: [],
 
                 cacheMaxAge:
                     0
@@ -2215,7 +2116,7 @@ builder.defineStreamHandler(
 
 
 // ==========================================
-// SUBTITLES HANDLER
+// SUBTITLES
 // ==========================================
 
 builder.defineSubtitlesHandler(
@@ -2230,8 +2131,7 @@ builder.defineSubtitlesHandler(
 
             return {
 
-                subtitles:
-                    [],
+                subtitles: [],
 
                 cacheMaxAge:
                     0
@@ -2254,8 +2154,7 @@ builder.defineSubtitlesHandler(
 
             return {
 
-                subtitles:
-                    [],
+                subtitles: [],
 
                 cacheMaxAge:
                     0
@@ -2284,8 +2183,7 @@ builder.defineSubtitlesHandler(
 
             return {
 
-                subtitles:
-                    [],
+                subtitles: [],
 
                 cacheMaxAge:
                     0
@@ -2311,8 +2209,7 @@ builder.defineSubtitlesHandler(
 
             return {
 
-                subtitles:
-                    [],
+                subtitles: [],
 
                 cacheMaxAge:
                     0
@@ -2410,7 +2307,7 @@ console.log(
 );
 
 console.log(
-    "Version: 2.7.0"
+    "Version: 2.7.1"
 );
 
 console.log(
@@ -2419,10 +2316,6 @@ console.log(
 
 console.log(
     "Configure required: YES"
-);
-
-console.log(
-    "Audio filtering:"
 );
 
 console.log(
