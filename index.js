@@ -7,7 +7,7 @@ const https = require("https");
 
 
 // ==========================================
-// BASIC SETTINGS
+// SETTINGS
 // ==========================================
 
 const SERIES_ID =
@@ -21,14 +21,14 @@ const CUSTOM_META_PREFIX =
 
 
 // ==========================================
-// CUSTOM IMAGE
+// IMAGE
 // ==========================================
 
 const DRIVE_IMAGE_ID =
     "14C3sLDHU_JX94VtkKRGpCwgKcYyiFeH0";
 
 const POSTER_URL =
-    `https://drive.google.com/thumbnail?id=${DRIVE_IMAGE_ID}&sz=w342`;
+    `https://drive.google.com/thumbnail?id=${DRIVE_IMAGE_ID}&sz=w500`;
 
 const BACKGROUND_URL =
     `https://drive.google.com/thumbnail?id=${DRIVE_IMAGE_ID}&sz=w1280`;
@@ -55,7 +55,7 @@ const CINEMETA_URL =
 
 
 // ==========================================
-// ADDON
+// ADDON MANIFEST
 // ==========================================
 
 const builder = new addonBuilder({
@@ -64,13 +64,121 @@ const builder = new addonBuilder({
         "com.imry.dragonsrising.hebrew",
 
     version:
-        "2.3.0",
+        "2.4.0",
 
     name:
         "Dragons Rising Hebrew+English",
 
     description:
         "Ninjago Dragons Rising Seasons 2, 3 and 4 with Hebrew and English audio",
+
+    logo:
+        POSTER_URL,
+
+    background:
+        BACKGROUND_URL,
+
+
+    // ======================================
+    // CONFIGURE
+    // ======================================
+
+    behaviorHints: {
+
+        configurable:
+            true,
+
+        configurationRequired:
+            false
+
+    },
+
+
+    config: [
+
+        {
+
+            key:
+                "audio",
+
+            type:
+                "select",
+
+            title:
+                "Audio",
+
+            options: [
+
+                "Hebrew + English",
+
+                "Hebrew",
+
+                "English"
+
+            ],
+
+            default:
+                "Hebrew + English"
+
+        },
+
+
+        {
+
+            key:
+                "season2",
+
+            type:
+                "checkbox",
+
+            title:
+                "Show Season 2",
+
+            default:
+                "checked"
+
+        },
+
+
+        {
+
+            key:
+                "season3",
+
+            type:
+                "checkbox",
+
+            title:
+                "Show Season 3",
+
+            default:
+                "checked"
+
+        },
+
+
+        {
+
+            key:
+                "season4",
+
+            type:
+                "checkbox",
+
+            title:
+                "Show Season 4",
+
+            default:
+                "checked"
+
+        }
+
+    ],
+
+
+    // ======================================
+    // STREMIO ADDONS CONFIG
+    // ======================================
 
     stremioAddonsConfig: {
 
@@ -82,11 +190,17 @@ const builder = new addonBuilder({
 
     },
 
+
+    // ======================================
+    // RESOURCES
+    // ======================================
+
     resources: [
 
         "catalog",
 
         {
+
             name:
                 "meta",
 
@@ -97,9 +211,11 @@ const builder = new addonBuilder({
             idPrefixes: [
                 CUSTOM_META_PREFIX
             ]
+
         },
 
         {
+
             name:
                 "stream",
 
@@ -108,12 +224,17 @@ const builder = new addonBuilder({
             ],
 
             idPrefixes: [
+
                 SERIES_ID,
+
                 CUSTOM_META_PREFIX
+
             ]
+
         },
 
         {
+
             name:
                 "subtitles",
 
@@ -122,20 +243,31 @@ const builder = new addonBuilder({
             ],
 
             idPrefixes: [
+
                 SERIES_ID,
+
                 CUSTOM_META_PREFIX
+
             ]
+
         }
 
     ],
+
 
     types: [
         "series"
     ],
 
+
+    // ======================================
+    // CATALOG
+    // ======================================
+
     catalogs: [
 
         {
+
             type:
                 "series",
 
@@ -144,6 +276,7 @@ const builder = new addonBuilder({
 
             name:
                 "Dragons Rising Hebrew+English"
+
         }
 
     ]
@@ -152,10 +285,142 @@ const builder = new addonBuilder({
 
 
 // ==========================================
-// HELPERS
+// CONFIG HELPERS
 // ==========================================
 
-function padEpisode(episode) {
+function checkboxEnabled(
+    config,
+    key
+) {
+
+    // If no config was supplied,
+    // keep the season enabled.
+
+    if (
+        !config ||
+        config[key] === undefined ||
+        config[key] === null
+    ) {
+
+        return true;
+
+    }
+
+
+    const value =
+        config[key];
+
+
+    if (
+        value === true ||
+        value === 1 ||
+        value === "1" ||
+        value === "true" ||
+        value === "checked" ||
+        value === "on"
+    ) {
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+function getAudioPreference(
+    config
+) {
+
+    if (
+        !config ||
+        !config.audio
+    ) {
+
+        return (
+            "Hebrew + English"
+        );
+
+    }
+
+
+    if (
+        config.audio === "Hebrew"
+    ) {
+
+        return (
+            "Hebrew"
+        );
+
+    }
+
+
+    if (
+        config.audio === "English"
+    ) {
+
+        return (
+            "English"
+        );
+
+    }
+
+
+    return (
+        "Hebrew + English"
+    );
+
+}
+
+
+function getAudioDisplay(
+    config
+) {
+
+    const audio =
+        getAudioPreference(
+            config
+        );
+
+
+    if (
+        audio === "Hebrew"
+    ) {
+
+        return (
+            "🇮🇱 Hebrew"
+        );
+
+    }
+
+
+    if (
+        audio === "English"
+    ) {
+
+        return (
+            "🇺🇸 English"
+        );
+
+    }
+
+
+    return (
+        "🇮🇱🇺🇸 Hebrew + English"
+    );
+
+}
+
+
+// ==========================================
+// GENERAL HELPERS
+// ==========================================
+
+function padEpisode(
+    episode
+) {
 
     return String(
         episode
@@ -167,7 +432,9 @@ function padEpisode(episode) {
 }
 
 
-function getSeasonMetaId(season) {
+function getSeasonMetaId(
+    season
+) {
 
     return (
         `${CUSTOM_META_PREFIX}${season}`
@@ -177,7 +444,7 @@ function getSeasonMetaId(season) {
 
 
 // ==========================================
-// VIDEO FILENAMES
+// VIDEO FILES
 // ==========================================
 
 function getVideoFilename(
@@ -195,7 +462,9 @@ function getVideoFilename(
     // SEASON 2
     // ======================================
 
-    if (season === 2) {
+    if (
+        season === 2
+    ) {
 
         return (
             `es${ep}s2.mp4`
@@ -208,7 +477,9 @@ function getVideoFilename(
     // SEASON 3
     // ======================================
 
-    if (season === 3) {
+    if (
+        season === 3
+    ) {
 
         return (
             `es${ep}s3.mp4`
@@ -221,15 +492,20 @@ function getVideoFilename(
     // SEASON 4
     // ======================================
 
-    if (season === 4) {
+    if (
+        season === 4
+    ) {
 
-        if (episode === 18) {
+        if (
+            episode === 18
+        ) {
 
             return (
                 "output.mkv"
             );
 
         }
+
 
         return (
             `es${ep}.mp4`
@@ -244,7 +520,7 @@ function getVideoFilename(
 
 
 // ==========================================
-// SUBTITLE FILENAMES
+// SUBTITLE FILES
 // ==========================================
 
 function getSubtitleInfo(
@@ -262,7 +538,9 @@ function getSubtitleInfo(
     // SEASON 2
     // ======================================
 
-    if (season === 2) {
+    if (
+        season === 2
+    ) {
 
         return {
 
@@ -284,7 +562,9 @@ function getSubtitleInfo(
     // SEASON 3
     // ======================================
 
-    if (season === 3) {
+    if (
+        season === 3
+    ) {
 
         return {
 
@@ -306,12 +586,17 @@ function getSubtitleInfo(
     // SEASON 4
     // ======================================
 
-    if (season === 4) {
+    if (
+        season === 4
+    ) {
 
 
-        // E01 - E10 English
+        // E01 - E10
+        // English subtitles
 
-        if (episode <= 10) {
+        if (
+            episode <= 10
+        ) {
 
             return {
 
@@ -329,7 +614,8 @@ function getSubtitleInfo(
         }
 
 
-        // E11 - E20 Hebrew
+        // E11 - E20
+        // Hebrew subtitles
 
         return {
 
@@ -356,9 +642,13 @@ function getSubtitleInfo(
 // EPISODE ID PARSER
 // ==========================================
 
-function getEpisodeInfo(id) {
+function getEpisodeInfo(
+    id
+) {
 
-    if (!id) {
+    if (
+        !id
+    ) {
 
         return null;
 
@@ -366,11 +656,9 @@ function getEpisodeInfo(id) {
 
 
     // ======================================
-    // NORMAL STREMIO / IMDB ID
+    // NORMAL IMDB ID
     //
     // tt27502465:2:1
-    // tt27502465:3:5
-    // tt27502465:4:18
     // ======================================
 
     const imdbMatch =
@@ -379,12 +667,15 @@ function getEpisodeInfo(id) {
         );
 
 
-    if (imdbMatch) {
+    if (
+        imdbMatch
+    ) {
 
         const season =
             Number(
                 imdbMatch[1]
             );
+
 
         const episode =
             Number(
@@ -424,17 +715,21 @@ function getEpisodeInfo(id) {
         );
 
 
-    if (customMatch) {
+    if (
+        customMatch
+    ) {
 
         const metaSeason =
             Number(
                 customMatch[1]
             );
 
+
         const season =
             Number(
                 customMatch[2]
             );
+
 
         const episode =
             Number(
@@ -480,9 +775,13 @@ function getEpisodeInfo(id) {
 // META ID PARSER
 // ==========================================
 
-function getSeasonFromMetaId(id) {
+function getSeasonFromMetaId(
+    id
+) {
 
-    if (!id) {
+    if (
+        !id
+    ) {
 
         return null;
 
@@ -495,7 +794,9 @@ function getSeasonFromMetaId(id) {
         );
 
 
-    if (!match) {
+    if (
+        !match
+    ) {
 
         return null;
 
@@ -524,16 +825,21 @@ let cinemetaCacheTime =
 // GET JSON
 // ==========================================
 
-function getJson(url) {
+function getJson(
+    url
+) {
 
     return new Promise(
+
         (
             resolve,
             reject
         ) => {
 
             https.get(
+
                 url,
+
                 (response) => {
 
 
@@ -542,12 +848,17 @@ function getJson(url) {
                     // ==================================
 
                     if (
+
                         response.statusCode >= 300 &&
+
                         response.statusCode < 400 &&
+
                         response.headers.location
+
                     ) {
 
                         response.resume();
+
 
                         return getJson(
                             response.headers.location
@@ -563,7 +874,7 @@ function getJson(url) {
 
 
                     // ==================================
-                    // HTTP ERROR
+                    // ERROR
                     // ==================================
 
                     if (
@@ -571,6 +882,7 @@ function getJson(url) {
                     ) {
 
                         response.resume();
+
 
                         return reject(
 
@@ -583,10 +895,6 @@ function getJson(url) {
                     }
 
 
-                    // ==================================
-                    // DATA
-                    // ==================================
-
                     let data =
                         "";
 
@@ -597,31 +905,40 @@ function getJson(url) {
 
 
                     response.on(
+
                         "data",
+
                         (chunk) => {
 
                             data +=
                                 chunk;
 
                         }
+
                     );
 
 
                     response.on(
+
                         "end",
+
                         () => {
 
                             try {
 
                                 resolve(
+
                                     JSON.parse(
                                         data
                                     )
+
                                 );
 
                             }
 
-                            catch (error) {
+                            catch (
+                                error
+                            ) {
 
                                 reject(
                                     error
@@ -630,9 +947,11 @@ function getJson(url) {
                             }
 
                         }
+
                     );
 
                 }
+
             )
                 .on(
                     "error",
@@ -640,13 +959,14 @@ function getJson(url) {
                 );
 
         }
+
     );
 
 }
 
 
 // ==========================================
-// GET CINEMETA META
+// CINEMETA META
 // ==========================================
 
 async function getCinemetaMeta() {
@@ -655,12 +975,13 @@ async function getCinemetaMeta() {
         Date.now();
 
 
-    // cache for 30 minutes
-
     if (
+
         cinemetaCache &&
+
         now - cinemetaCacheTime <
         30 * 60 * 1000
+
     ) {
 
         return (
@@ -691,6 +1012,7 @@ async function getCinemetaMeta() {
     cinemetaCache =
         data.meta;
 
+
     cinemetaCacheTime =
         now;
 
@@ -719,7 +1041,9 @@ function createFallbackVideos(
     const fallbackYear = {
 
         2: 2024,
+
         3: 2025,
+
         4: 2026
 
     }[season];
@@ -728,7 +1052,8 @@ function createFallbackVideos(
     return Array.from(
 
         {
-            length: 20
+            length:
+                20
         },
 
         (
@@ -782,7 +1107,7 @@ function createFallbackVideos(
 
 
 // ==========================================
-// GET EPISODES FOR SEASON
+// GET SEASON VIDEOS
 // ==========================================
 
 async function getSeasonVideos(
@@ -812,18 +1137,15 @@ async function getSeasonVideos(
         const seasonVideos =
             sourceVideos
 
-
-                // ==================================
-                // ONLY THIS SEASON
-                // ==================================
-
                 .filter(
+
                     (video) => {
 
                         const videoSeason =
                             Number(
                                 video.season
                             );
+
 
                         const videoEpisode =
                             Number(
@@ -842,14 +1164,11 @@ async function getSeasonVideos(
                         );
 
                     }
+
                 )
 
-
-                // ==================================
-                // SORT EPISODES
-                // ==================================
-
                 .sort(
+
                     (
                         a,
                         b
@@ -862,14 +1181,11 @@ async function getSeasonVideos(
                         Number(
                             b.episode
                         )
+
                 )
 
-
-                // ==================================
-                // CUSTOM VIDEO IDS
-                // ==================================
-
                 .map(
+
                     (video) => {
 
                         const episode =
@@ -889,19 +1205,7 @@ async function getSeasonVideos(
 
                             released:
                                 video.released ||
-                                new Date(
-
-                                    Date.UTC(
-
-                                        2020 + season,
-
-                                        0,
-
-                                        episode
-
-                                    )
-
-                                ).toISOString(),
+                                new Date().toISOString(),
 
                             season:
                                 season,
@@ -922,6 +1226,7 @@ async function getSeasonVideos(
                         };
 
                     }
+
                 );
 
 
@@ -937,7 +1242,9 @@ async function getSeasonVideos(
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.error(
 
@@ -950,10 +1257,6 @@ async function getSeasonVideos(
     }
 
 
-    // ======================================
-    // FALLBACK
-    // ======================================
-
     return (
         createFallbackVideos(
             season
@@ -964,42 +1267,21 @@ async function getSeasonVideos(
 
 
 // ==========================================
-// CATALOG
+// CATALOG HANDLER
 // ==========================================
 
 builder.defineCatalogHandler(
 
-    async (args) => {
-
-
-        console.log("");
-
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "CATALOG REQUEST"
-        );
-
-        console.log(
-            "Type:",
-            args.type
-        );
-
-        console.log(
-            "ID:",
-            args.id
-        );
-
-        console.log(
-            "========================================"
-        );
-
+    async (
+        args
+    ) => {
 
         if (
+
             args.type !== "series" ||
+
             args.id !== CATALOG_ID
+
         ) {
 
             return {
@@ -1011,98 +1293,139 @@ builder.defineCatalogHandler(
         }
 
 
+        const config =
+            args.config ||
+            {};
+
+
+        const audio =
+            getAudioPreference(
+                config
+            );
+
+
+        const metas =
+            [];
+
+
+        // ======================================
+        // SEASON 2
+        // ======================================
+
+        if (
+            checkboxEnabled(
+                config,
+                "season2"
+            )
+        ) {
+
+            metas.push({
+
+                id:
+                    getSeasonMetaId(
+                        2
+                    ),
+
+                type:
+                    "series",
+
+                name:
+                    "Season 2",
+
+                poster:
+                    POSTER_URL,
+
+                posterShape:
+                    "poster",
+
+                description:
+                    `Dragons Rising Season 2 • ${audio}`
+
+            });
+
+        }
+
+
+        // ======================================
+        // SEASON 3
+        // ======================================
+
+        if (
+            checkboxEnabled(
+                config,
+                "season3"
+            )
+        ) {
+
+            metas.push({
+
+                id:
+                    getSeasonMetaId(
+                        3
+                    ),
+
+                type:
+                    "series",
+
+                name:
+                    "Season 3",
+
+                poster:
+                    POSTER_URL,
+
+                posterShape:
+                    "poster",
+
+                description:
+                    `Dragons Rising Season 3 • ${audio}`
+
+            });
+
+        }
+
+
+        // ======================================
+        // SEASON 4
+        // ======================================
+
+        if (
+            checkboxEnabled(
+                config,
+                "season4"
+            )
+        ) {
+
+            metas.push({
+
+                id:
+                    getSeasonMetaId(
+                        4
+                    ),
+
+                type:
+                    "series",
+
+                name:
+                    "Season 4",
+
+                poster:
+                    POSTER_URL,
+
+                posterShape:
+                    "poster",
+
+                description:
+                    `Dragons Rising Season 4 • ${audio}`
+
+            });
+
+        }
+
+
         return {
 
-            metas: [
-
-
-                // ==================================
-                // SEASON 2
-                // ==================================
-
-                {
-
-                    id:
-                        getSeasonMetaId(
-                            2
-                        ),
-
-                    type:
-                        "series",
-
-                    name:
-                        "Season 2",
-
-                    poster:
-                        POSTER_URL,
-
-                    posterShape:
-                        "poster",
-
-                    description:
-                        "Dragons Rising Hebrew+English • Season 2"
-
-                },
-
-
-                // ==================================
-                // SEASON 3
-                // ==================================
-
-                {
-
-                    id:
-                        getSeasonMetaId(
-                            3
-                        ),
-
-                    type:
-                        "series",
-
-                    name:
-                        "Season 3",
-
-                    poster:
-                        POSTER_URL,
-
-                    posterShape:
-                        "poster",
-
-                    description:
-                        "Dragons Rising Hebrew+English • Season 3"
-
-                },
-
-
-                // ==================================
-                // SEASON 4
-                // ==================================
-
-                {
-
-                    id:
-                        getSeasonMetaId(
-                            4
-                        ),
-
-                    type:
-                        "series",
-
-                    name:
-                        "Season 4",
-
-                    poster:
-                        POSTER_URL,
-
-                    posterShape:
-                        "poster",
-
-                    description:
-                        "Dragons Rising Hebrew+English • Season 4"
-
-                }
-
-            ]
+            metas:
+                metas
 
         };
 
@@ -1117,33 +1440,9 @@ builder.defineCatalogHandler(
 
 builder.defineMetaHandler(
 
-    async (args) => {
-
-
-        console.log("");
-
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "META REQUEST"
-        );
-
-        console.log(
-            "Type:",
-            args.type
-        );
-
-        console.log(
-            "ID:",
-            args.id
-        );
-
-        console.log(
-            "========================================"
-        );
-
+    async (
+        args
+    ) => {
 
         if (
             args.type !== "series"
@@ -1151,7 +1450,8 @@ builder.defineMetaHandler(
 
             return {
 
-                meta: null
+                meta:
+                    null
 
             };
 
@@ -1164,11 +1464,82 @@ builder.defineMetaHandler(
             );
 
 
-        if (!season) {
+        if (
+            !season
+        ) {
 
             return {
 
-                meta: null
+                meta:
+                    null
+
+            };
+
+        }
+
+
+        const config =
+            args.config ||
+            {};
+
+
+        if (
+
+            season === 2 &&
+
+            !checkboxEnabled(
+                config,
+                "season2"
+            )
+
+        ) {
+
+            return {
+
+                meta:
+                    null
+
+            };
+
+        }
+
+
+        if (
+
+            season === 3 &&
+
+            !checkboxEnabled(
+                config,
+                "season3"
+            )
+
+        ) {
+
+            return {
+
+                meta:
+                    null
+
+            };
+
+        }
+
+
+        if (
+
+            season === 4 &&
+
+            !checkboxEnabled(
+                config,
+                "season4"
+            )
+
+        ) {
+
+            return {
+
+                meta:
+                    null
 
             };
 
@@ -1181,14 +1552,15 @@ builder.defineMetaHandler(
             );
 
 
+        const audio =
+            getAudioPreference(
+                config
+            );
+
+
         return {
 
             meta: {
-
-
-                // ==================================
-                // BASIC META
-                // ==================================
 
                 id:
                     getSeasonMetaId(
@@ -1201,11 +1573,6 @@ builder.defineMetaHandler(
                 name:
                     `Dragons Rising Hebrew+English - Season ${season}`,
 
-
-                // ==================================
-                // IMAGE
-                // ==================================
-
                 poster:
                     POSTER_URL,
 
@@ -1215,18 +1582,8 @@ builder.defineMetaHandler(
                 background:
                     BACKGROUND_URL,
 
-
-                // ==================================
-                // DESCRIPTION
-                // ==================================
-
                 description:
-                    `Ninjago: Dragons Rising Season ${season} with Hebrew + English`,
-
-
-                // ==================================
-                // EPISODES
-                // ==================================
+                    `Ninjago: Dragons Rising Season ${season} • Audio preference: ${audio}`,
 
                 videos:
                     videos
@@ -1246,8 +1603,9 @@ builder.defineMetaHandler(
 
 builder.defineStreamHandler(
 
-    async (args) => {
-
+    async (
+        args
+    ) => {
 
         console.log("");
 
@@ -1260,31 +1618,26 @@ builder.defineStreamHandler(
         );
 
         console.log(
-            "Type:",
-            args.type
-        );
-
-        console.log(
             "ID:",
             args.id
         );
 
+
+        const config =
+            args.config ||
+            {};
+
+
+        const audioPreference =
+            getAudioPreference(
+                config
+            );
+
+
         console.log(
-            "========================================"
+            "Audio preference:",
+            audioPreference
         );
-
-
-        if (
-            args.type !== "series"
-        ) {
-
-            return {
-
-                streams: []
-
-            };
-
-        }
 
 
         const info =
@@ -1293,11 +1646,14 @@ builder.defineStreamHandler(
             );
 
 
-        if (!info) {
+        if (
+            !info
+        ) {
 
             return {
 
-                streams: []
+                streams:
+                    []
 
             };
 
@@ -1311,6 +1667,73 @@ builder.defineStreamHandler(
             info;
 
 
+        // ======================================
+        // DISABLED SEASON
+        // ======================================
+
+        if (
+
+            season === 2 &&
+
+            !checkboxEnabled(
+                config,
+                "season2"
+            )
+
+        ) {
+
+            return {
+
+                streams:
+                    []
+
+            };
+
+        }
+
+
+        if (
+
+            season === 3 &&
+
+            !checkboxEnabled(
+                config,
+                "season3"
+            )
+
+        ) {
+
+            return {
+
+                streams:
+                    []
+
+            };
+
+        }
+
+
+        if (
+
+            season === 4 &&
+
+            !checkboxEnabled(
+                config,
+                "season4"
+            )
+
+        ) {
+
+            return {
+
+                streams:
+                    []
+
+            };
+
+        }
+
+
         const filename =
             getVideoFilename(
 
@@ -1321,20 +1744,19 @@ builder.defineStreamHandler(
             );
 
 
-        if (!filename) {
+        if (
+            !filename
+        ) {
 
             return {
 
-                streams: []
+                streams:
+                    []
 
             };
 
         }
 
-
-        // ======================================
-        // VIDEO URL
-        // ======================================
 
         const videoUrl =
             `${MEDIA_BASE_URL}/${encodeURIComponent(filename)}`;
@@ -1358,50 +1780,14 @@ builder.defineStreamHandler(
             );
 
 
-        // ======================================
-        // STREAM TITLE
-        // ======================================
-
-        let title;
-
-
-        if (
-
-            season === 2 ||
-
-            season === 3 ||
-
-            (
-                season === 4 &&
-                episode === 18
-            )
-
-        ) {
-
-            title =
-                `S${seasonText}E${episodeText} • Hebrew + English Audio`;
-
-        }
-
-        else {
-
-            title =
-                `S${seasonText}E${episodeText} • Dragons Rising`;
-
-        }
-
-
-        console.log(
-            `S${seasonText}E${episodeText}`
-        );
-
-        console.log(
-            videoUrl
-        );
+        const audioDisplay =
+            getAudioDisplay(
+                config
+            );
 
 
         // ======================================
-        // RETURN STREAM
+        // STREAM
         // ======================================
 
         return {
@@ -1411,17 +1797,21 @@ builder.defineStreamHandler(
                 {
 
                     name:
-                        "🇮🇱 Dragons Rising",
+                        audioDisplay,
 
                     title:
-                        title,
+                        `S${seasonText}E${episodeText} • ${audioPreference}`,
+
+                    description:
+                        `Dragons Rising • ${audioPreference}`,
 
                     url:
                         videoUrl,
 
 
                     // ==================================
-                    // IMPORTANT FOR MULTIPLE AUDIO
+                    // IMPORTANT:
+                    // KEEP THIS - IT FIXED AUDIO TRACKS
                     // ==================================
 
                     behaviorHints: {
@@ -1430,7 +1820,12 @@ builder.defineStreamHandler(
                             true,
 
                         filename:
-                            filename
+                            filename,
+
+                        bingeGroup:
+                            `dragons-rising-${audioPreference
+                                .toLowerCase()
+                                .replace(/[^a-z]+/g, "-")}`
 
                     }
 
@@ -1451,46 +1846,9 @@ builder.defineStreamHandler(
 
 builder.defineSubtitlesHandler(
 
-    async (args) => {
-
-
-        console.log("");
-
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "SUBTITLE REQUEST"
-        );
-
-        console.log(
-            "Type:",
-            args.type
-        );
-
-        console.log(
-            "ID:",
-            args.id
-        );
-
-        console.log(
-            "========================================"
-        );
-
-
-        if (
-            args.type !== "series"
-        ) {
-
-            return {
-
-                subtitles: []
-
-            };
-
-        }
-
+    async (
+        args
+    ) => {
 
         const info =
             getEpisodeInfo(
@@ -1498,11 +1856,14 @@ builder.defineSubtitlesHandler(
             );
 
 
-        if (!info) {
+        if (
+            !info
+        ) {
 
             return {
 
-                subtitles: []
+                subtitles:
+                    []
 
             };
 
@@ -1526,20 +1887,19 @@ builder.defineSubtitlesHandler(
             );
 
 
-        if (!subtitle) {
+        if (
+            !subtitle
+        ) {
 
             return {
 
-                subtitles: []
+                subtitles:
+                    []
 
             };
 
         }
 
-
-        // ======================================
-        // SUBTITLE URL
-        // ======================================
 
         const subtitleUrl =
             `${SUBTITLE_BASE_URL}/${encodeURIComponent(subtitle.filename)}`;
@@ -1562,22 +1922,6 @@ builder.defineSubtitlesHandler(
                 "0"
             );
 
-
-        console.log(
-
-            `${subtitle.name} subtitles S${seasonText}E${episodeText}`
-
-        );
-
-
-        console.log(
-            subtitleUrl
-        );
-
-
-        // ======================================
-        // RETURN SUBTITLES
-        // ======================================
 
         return {
 
@@ -1606,7 +1950,7 @@ builder.defineSubtitlesHandler(
 
 
 // ==========================================
-// START SERVER
+// SERVER
 // ==========================================
 
 const PORT =
@@ -1639,11 +1983,11 @@ console.log(
 );
 
 console.log(
-    "Dragons Rising Hebrew+English Addon"
+    "Dragons Rising Hebrew+English"
 );
 
 console.log(
-    "Version: 2.3.0"
+    "Version: 2.4.0"
 );
 
 console.log(
@@ -1651,31 +1995,31 @@ console.log(
 );
 
 console.log(
-    "Catalog: Dragons Rising Hebrew+English"
+    "Configure: ENABLED"
 );
 
 console.log(
-    "Catalog items: Season 2, Season 3, Season 4"
+    "Audio options:"
 );
 
 console.log(
-    "Each season contains Episodes 1-20"
+    "- Hebrew + English"
 );
 
 console.log(
-    "Season 2 Audio: Hebrew + English"
+    "- Hebrew"
 );
 
 console.log(
-    "Season 3 Audio: Hebrew + English"
+    "- English"
 );
 
 console.log(
-    "Season 4 E18 Audio: Hebrew + English"
+    "Season selection: ENABLED"
 );
 
 console.log(
-    "Stream notWebReady: ENABLED"
+    "Multiple audio track support: ENABLED"
 );
 
 console.log(
