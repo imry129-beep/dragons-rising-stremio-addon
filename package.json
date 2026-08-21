@@ -1,16 +1,15 @@
 {
   "name": "dragons-rising-stremio-addon",
-  "version": "1.2.0",
-  "description": "Stremio addon for Ninjago Dragons Rising Season 4 with Hebrew audio and subtitles",
+  "version": "2.9.0",
+  "description": "Dragons Rising Hebrew + English Stremio addon",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "addon": "node index.js",
+    "media": "node server.js"
   },
   "dependencies": {
-    "express": "^5.2.1",
+    "express": "^5.1.0",
     "stremio-addon-sdk": "^1.6.10"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }
