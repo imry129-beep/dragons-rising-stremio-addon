@@ -27,16 +27,74 @@ const SUBTITLE_BASE_URL =
     "https://raw.githubusercontent.com/imry129-beep/dragons-rising-stremio-addon/main/videos";
 
 
-const DRIVE_IMAGE_ID =
+// ==================================================
+// MAIN ADDON IMAGE
+// ==================================================
+
+const MAIN_DRIVE_IMAGE_ID =
     "14C3sLDHU_JX94VtkKRGpCwgKcYyiFeH0";
 
 
-const POSTER_URL =
-    `https://drive.google.com/thumbnail?id=${DRIVE_IMAGE_ID}&sz=w500`;
+const LOGO_URL =
+    `https://drive.google.com/thumbnail?id=${MAIN_DRIVE_IMAGE_ID}&sz=w500`;
 
 
-const BACKGROUND_URL =
-    `https://drive.google.com/thumbnail?id=${DRIVE_IMAGE_ID}&sz=w1280`;
+const MAIN_BACKGROUND_URL =
+    `https://drive.google.com/thumbnail?id=${MAIN_DRIVE_IMAGE_ID}&sz=w1280`;
+
+
+// ==================================================
+// SEASON POSTERS
+// ==================================================
+
+const POSTER_IDS = {
+
+    2: {
+
+        heb:
+            "1cNghnN1eBV8q1T7LD-dP3pYK1diM08H7",
+
+        eng:
+            "1OlGqhm-3UUBUDvh8bMeyQTLeaM14UdJ5"
+
+    },
+
+
+    3: {
+
+        heb:
+            "1hWettFNSiZyv1nBDbyKlDUdrRXGbhhOk",
+
+        eng:
+            "1ZdKvHBiREuHlPyrsQtyRO8zTCmbIj1HO"
+
+    },
+
+
+    4: {
+
+        eng:
+            "1Ccuy2gieXJ5O3zw4sGnZ2AJvGF0EhLQt"
+
+    }
+
+};
+
+
+// ==================================================
+// DRIVE IMAGE HELPER
+// ==================================================
+
+function driveImage(
+    id,
+    size = "w1280"
+) {
+
+    return (
+        `https://drive.google.com/thumbnail?id=${id}&sz=${size}`
+    );
+
+}
 
 
 // ==================================================
@@ -53,10 +111,6 @@ const META_PREFIX =
 
 // ==================================================
 // MANIFEST
-//
-// IMPORTANT:
-// Keep the same manifest ID if your old index.js
-// already used a different one.
 // ==================================================
 
 const manifest = {
@@ -65,7 +119,7 @@ const manifest = {
         "org.dragons.rising.hebrew.english",
 
     version:
-        "2.9.0",
+        "2.9.1",
 
     name:
         "Dragons Rising Hebrew + English",
@@ -74,10 +128,10 @@ const manifest = {
         "Ninjago: Dragons Rising Seasons 2-4. Hebrew and English audio for Seasons 2-3. Season 4 is English only.",
 
     logo:
-        POSTER_URL,
+        LOGO_URL,
 
     background:
-        BACKGROUND_URL,
+        MAIN_BACKGROUND_URL,
 
     resources: [
         "catalog",
@@ -90,7 +144,9 @@ const manifest = {
     ],
 
     catalogs: [
+
         {
+
             type:
                 "series",
 
@@ -99,20 +155,25 @@ const manifest = {
 
             name:
                 "Dragons Rising Hebrew + English"
+
         }
+
     ],
 
     behaviorHints: {
+
         configurable:
             true,
 
         configurationRequired:
             true
+
     },
 
     config: [
 
         {
+
             key:
                 "audio",
 
@@ -123,16 +184,21 @@ const manifest = {
                 "Audio",
 
             options: [
+
                 "Hebrew",
                 "English",
                 "Hebrew + English"
+
             ],
 
             default:
                 "Hebrew + English"
+
         },
 
+
         {
+
             key:
                 "season2",
 
@@ -144,9 +210,12 @@ const manifest = {
 
             default:
                 "checked"
+
         },
 
+
         {
+
             key:
                 "season3",
 
@@ -158,9 +227,12 @@ const manifest = {
 
             default:
                 "checked"
+
         },
 
+
         {
+
             key:
                 "season4",
 
@@ -172,6 +244,7 @@ const manifest = {
 
             default:
                 "checked"
+
         }
 
     ]
@@ -237,12 +310,19 @@ function checkboxEnabled(
 ) {
 
     return (
+
         value === true ||
+
         value === 1 ||
+
         value === "1" ||
+
         value === "true" ||
+
         value === "checked" ||
+
         value === "on"
+
     );
 
 }
@@ -315,12 +395,6 @@ function getAudioMode(
     season
 ) {
 
-    // ==============================================
-    // SEASON 4
-    //
-    // English only.
-// ==============================================
-
     if (
         Number(
             season
@@ -331,10 +405,6 @@ function getAudioMode(
 
     }
 
-
-    // ==============================================
-    // SEASON 2 / 3
-    // ==============================================
 
     if (
         config?.audio === "Hebrew"
@@ -355,6 +425,140 @@ function getAudioMode(
 
 
     return "both";
+
+}
+
+
+// ==================================================
+// POSTER MODE
+//
+// BOTH = ENGLISH POSTER
+// SEASON 4 = ALWAYS ENGLISH POSTER
+// ==================================================
+
+function getPosterMode(
+    config,
+    season
+) {
+
+    if (
+        Number(
+            season
+        ) === 4
+    ) {
+
+        return "eng";
+
+    }
+
+
+    if (
+        config?.audio === "Hebrew"
+    ) {
+
+        return "heb";
+
+    }
+
+
+    // English OR Hebrew + English
+    return "eng";
+
+}
+
+
+// ==================================================
+// GET SEASON POSTER
+// ==================================================
+
+function getSeasonPoster(
+    season,
+    config
+) {
+
+    const posterMode =
+        getPosterMode(
+            config,
+            season
+        );
+
+
+    const seasonPosters =
+        POSTER_IDS[
+            season
+        ];
+
+
+    if (
+        !seasonPosters
+    ) {
+
+        return LOGO_URL;
+
+    }
+
+
+    const id =
+        seasonPosters[
+            posterMode
+        ] ||
+        seasonPosters.eng ||
+        seasonPosters.heb;
+
+
+    return driveImage(
+        id,
+        "w500"
+    );
+
+}
+
+
+// ==================================================
+// GET SEASON BACKGROUND
+//
+// Uses same selected season image
+// ==================================================
+
+function getSeasonBackground(
+    season,
+    config
+) {
+
+    const posterMode =
+        getPosterMode(
+            config,
+            season
+        );
+
+
+    const seasonPosters =
+        POSTER_IDS[
+            season
+        ];
+
+
+    if (
+        !seasonPosters
+    ) {
+
+        return MAIN_BACKGROUND_URL;
+
+    }
+
+
+    const id =
+        seasonPosters[
+            posterMode
+        ] ||
+        seasonPosters.eng ||
+        seasonPosters.heb;
+
+
+    return driveImage(
+        id,
+        "w1280"
+    );
 
 }
 
@@ -442,17 +646,6 @@ function getSeasonName(
     if (
         language === "en"
     ) {
-
-        if (
-            season === 4
-        ) {
-
-            return (
-                `Ninjago: Dragons Rising — Season ${season} 🇬🇧`
-            );
-
-        }
-
 
         return (
             `Ninjago: Dragons Rising — Season ${season}`
@@ -564,7 +757,7 @@ function getSeasonDescription(
 
 
 // ==================================================
-// FILE NAME
+// VIDEO FILE NAME
 // ==================================================
 
 function getVideoFilename(
@@ -581,9 +774,9 @@ function getVideoFilename(
         );
 
 
-    // ==============================================
+    // ==================================================
     // SEASON 2
-    // ==============================================
+    // ==================================================
 
     if (
         season === 2
@@ -596,9 +789,9 @@ function getVideoFilename(
     }
 
 
-    // ==============================================
+    // ==================================================
     // SEASON 3
-    // ==============================================
+    // ==================================================
 
     if (
         season === 3
@@ -611,9 +804,9 @@ function getVideoFilename(
     }
 
 
-    // ==============================================
+    // ==================================================
     // SEASON 4
-    // ==============================================
+    // ==================================================
 
     if (
         season === 4
@@ -704,12 +897,6 @@ function parseVideoId(
     id
 ) {
 
-    // ==============================================
-    // CUSTOM IDs
-    //
-    // dragons-rising-hebrew-english-s2:2:1
-    // ==============================================
-
     let match =
         /^dragons-rising-hebrew-english-s(\d+):(\d+):(\d+)$/
             .exec(
@@ -740,7 +927,8 @@ function parseVideoId(
 
 
         if (
-            seasonFromMeta !== season
+            seasonFromMeta !==
+            season
         ) {
 
             return null;
@@ -749,18 +937,18 @@ function parseVideoId(
 
 
         return {
+
             season,
             episode
+
         };
 
     }
 
 
-    // ==============================================
-    // ALSO SUPPORT STANDARD IMDB EPISODE IDs
-    //
-    // tt27502465:2:1
-    // ==============================================
+    // ==================================================
+    // SUPPORT STANDARD IMDB VIDEO IDS
+    // ==================================================
 
     match =
         new RegExp(
@@ -861,7 +1049,8 @@ async function getCinemeta() {
 
 
         cinemetaCache =
-            data?.meta || null;
+            data?.meta ||
+            null;
 
 
         cinemetaCacheTime =
@@ -890,7 +1079,7 @@ async function getCinemeta() {
 
 
 // ==================================================
-// EPISODE DATA
+// EPISODES
 // ==================================================
 
 async function getEpisodes(
@@ -915,6 +1104,7 @@ async function getEpisodes(
                 (
                     video
                 ) =>
+
                     Number(
                         video.season
                     ) === season
@@ -924,18 +1114,16 @@ async function getEpisodes(
                     a,
                     b
                 ) =>
+
                     Number(
                         a.episode
                     ) -
+
                     Number(
                         b.episode
                     )
             );
 
-
-    // ==============================================
-    // CINEMETA WORKED
-    // ==============================================
 
     if (
         episodes.length > 0
@@ -949,9 +1137,9 @@ async function getEpisodes(
     }
 
 
-    // ==============================================
-    // FALLBACK
-    // ==============================================
+    // ==================================================
+    // FALLBACK 20 EPISODES
+    // ==================================================
 
     return Array.from(
         {
@@ -982,7 +1170,7 @@ async function getEpisodes(
                     "",
 
                 thumbnail:
-                    BACKGROUND_URL
+                    MAIN_BACKGROUND_URL
 
             };
 
@@ -1014,11 +1202,9 @@ function getSubtitles(
         [];
 
 
-    // ==============================================
+    // ==================================================
     // SEASON 2
-    // Expected English subtitle filenames:
-    // es01s2.en.srt ...
-    // ==============================================
+    // ==================================================
 
     if (
         season === 2
@@ -1040,10 +1226,9 @@ function getSubtitles(
     }
 
 
-    // ==============================================
+    // ==================================================
     // SEASON 3
-    // English subtitles
-    // ==============================================
+    // ==================================================
 
     if (
         season === 3
@@ -1065,12 +1250,12 @@ function getSubtitles(
     }
 
 
-    // ==============================================
+    // ==================================================
     // SEASON 4
     //
-    // Episodes 1-10 = English
-    // Episodes 11-20 = Hebrew
-    // ==============================================
+    // 1-10 English subtitles
+    // 11-20 Hebrew subtitles
+    // ==================================================
 
     if (
         season === 4
@@ -1130,9 +1315,11 @@ builder.defineCatalogHandler(
     ) => {
 
         const {
+
             type,
             id,
             config = {}
+
         } =
             args;
 
@@ -1143,7 +1330,10 @@ builder.defineCatalogHandler(
         ) {
 
             return {
-                metas: []
+
+                metas:
+                    []
+
             };
 
         }
@@ -1156,7 +1346,10 @@ builder.defineCatalogHandler(
         ) {
 
             return {
-                metas: []
+
+                metas:
+                    []
+
             };
 
         }
@@ -1187,6 +1380,20 @@ builder.defineCatalogHandler(
             }
 
 
+            const poster =
+                getSeasonPoster(
+                    season,
+                    config
+                );
+
+
+            const background =
+                getSeasonBackground(
+                    season,
+                    config
+                );
+
+
             metas.push({
 
                 id:
@@ -1202,10 +1409,10 @@ builder.defineCatalogHandler(
                     ),
 
                 poster:
-                    POSTER_URL,
+                    poster,
 
                 background:
-                    BACKGROUND_URL,
+                    background,
 
                 description:
                     getSeasonDescription(
@@ -1217,9 +1424,11 @@ builder.defineCatalogHandler(
                     "2024-",
 
                 genres: [
+
                     "Animation",
                     "Action",
                     "Adventure"
+
                 ]
 
             });
@@ -1228,7 +1437,10 @@ builder.defineCatalogHandler(
 
 
         return {
-            metas
+
+            metas:
+                metas
+
         };
 
     }
@@ -1245,9 +1457,11 @@ builder.defineMetaHandler(
     ) => {
 
         const {
+
             type,
             id,
             config = {}
+
         } =
             args;
 
@@ -1257,7 +1471,10 @@ builder.defineMetaHandler(
         ) {
 
             return {
-                meta: null
+
+                meta:
+                    null
+
             };
 
         }
@@ -1275,7 +1492,10 @@ builder.defineMetaHandler(
         ) {
 
             return {
-                meta: null
+
+                meta:
+                    null
+
             };
 
         }
@@ -1298,7 +1518,10 @@ builder.defineMetaHandler(
         ) {
 
             return {
-                meta: null
+
+                meta:
+                    null
+
             };
 
         }
@@ -1312,10 +1535,27 @@ builder.defineMetaHandler(
         ) {
 
             return {
-                meta: null
+
+                meta:
+                    null
+
             };
 
         }
+
+
+        const poster =
+            getSeasonPoster(
+                season,
+                config
+            );
+
+
+        const background =
+            getSeasonBackground(
+                season,
+                config
+            );
 
 
         const episodes =
@@ -1366,7 +1606,7 @@ builder.defineMetaHandler(
 
                         thumbnail:
                             episodeData.thumbnail ||
-                            BACKGROUND_URL
+                            background
 
                     };
 
@@ -1391,10 +1631,10 @@ builder.defineMetaHandler(
                     ),
 
                 poster:
-                    POSTER_URL,
+                    poster,
 
                 background:
-                    BACKGROUND_URL,
+                    background,
 
                 description:
                     getSeasonDescription(
@@ -1406,19 +1646,18 @@ builder.defineMetaHandler(
                     "2024-",
 
                 genres: [
+
                     "Animation",
                     "Action",
                     "Adventure"
+
                 ],
 
                 videos:
                     videos
 
-                // IMPORTANT:
-                // NO defaultVideoId
-                // so clicking the season card
-                // opens the season instead of
-                // instantly playing episode 1.
+                // אין defaultVideoId
+                // לחיצה על העונה תפתח את רשימת הפרקים
 
             }
 
@@ -1438,9 +1677,11 @@ builder.defineStreamHandler(
     ) => {
 
         const {
+
             type,
             id,
             config = {}
+
         } =
             args;
 
@@ -1450,7 +1691,10 @@ builder.defineStreamHandler(
         ) {
 
             return {
-                streams: []
+
+                streams:
+                    []
+
             };
 
         }
@@ -1467,15 +1711,20 @@ builder.defineStreamHandler(
         ) {
 
             return {
-                streams: []
+
+                streams:
+                    []
+
             };
 
         }
 
 
         const {
+
             season,
             episode
+
         } =
             parsed;
 
@@ -1491,7 +1740,10 @@ builder.defineStreamHandler(
         ) {
 
             return {
-                streams: []
+
+                streams:
+                    []
+
             };
 
         }
@@ -1503,7 +1755,10 @@ builder.defineStreamHandler(
         ) {
 
             return {
-                streams: []
+
+                streams:
+                    []
+
             };
 
         }
@@ -1517,7 +1772,10 @@ builder.defineStreamHandler(
         ) {
 
             return {
-                streams: []
+
+                streams:
+                    []
+
             };
 
         }
@@ -1535,17 +1793,20 @@ builder.defineStreamHandler(
         ) {
 
             return {
-                streams: []
+
+                streams:
+                    []
+
             };
 
         }
 
 
-        // ==============================================
-        // AUDIO
+        // ==================================================
+        // AUDIO MODE
         //
-        // S4 ALWAYS -> eng
-        // ==============================================
+        // S4 ALWAYS ENGLISH
+        // ==================================================
 
         const mode =
             getAudioMode(
@@ -1628,14 +1889,16 @@ builder.defineStreamHandler(
 
 
 // ==================================================
-// START
+// START SERVER
 // ==================================================
 
 serveHTTP(
     builder.getInterface(),
     {
+
         port:
             PORT
+
     }
 );
 
@@ -1643,10 +1906,21 @@ serveHTTP(
 console.log("");
 console.log("========================================");
 console.log("Dragons Rising Stremio Addon");
-console.log("Version: 2.9.0");
+console.log("Version: 2.9.1");
 console.log(`Port: ${PORT}`);
 console.log(`Media: ${MEDIA_BASE_URL}`);
-console.log("Season 2: configurable audio");
-console.log("Season 3: configurable audio");
+console.log("");
+console.log("POSTERS:");
+console.log("S2 Hebrew -> Hebrew poster");
+console.log("S2 English -> English poster");
+console.log("S2 Both -> English poster");
+console.log("S3 Hebrew -> Hebrew poster");
+console.log("S3 English -> English poster");
+console.log("S3 Both -> English poster");
+console.log("S4 -> English poster");
+console.log("");
+console.log("AUDIO:");
+console.log("Season 2: configurable");
+console.log("Season 3: configurable");
 console.log("Season 4: ENGLISH ONLY");
 console.log("========================================");
